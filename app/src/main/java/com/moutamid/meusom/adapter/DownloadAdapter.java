@@ -62,7 +62,7 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
 //            holder.songAlbumName.setText(model.getSongAlbumName());
         holder.songAlbumName.setVisibility(View.GONE);
         //Toast.makeText(context, "img " + model.getSongCoverUrl(), Toast.LENGTH_SHORT).show();
-        Glide.with(context).load(model.getSongCoverUrl()).into(holder.songCoverImage);
+        Glide.with(context).load(model.getSongCoverUrl()).placeholder(R.color.red).into(holder.songCoverImage);
 
         if (model.getType().equals("video")) {
             holder.type.setText("MP4");

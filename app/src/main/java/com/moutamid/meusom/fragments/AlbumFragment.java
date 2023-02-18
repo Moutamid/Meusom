@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -144,15 +145,7 @@ public class AlbumFragment extends Fragment {
             holder.songAlbumName.setText(model.getSongName());
             holder.songName.setText(model.getSongAlbumName());
 
-            with(getActivity())
-                    .asBitmap()
-                    .load(model.getSongCoverUrl())
-                    .apply(new RequestOptions()
-                            .placeholder(darkgray)
-                            .error(darkerGrey)
-                    )
-                    .diskCacheStrategy(DATA)
-                    .into(holder.songCoverImage);
+            Glide.with(requireContext()).load(model.getSongCoverUrl()).placeholder(R.color.red).into(holder.songCoverImage);
 
             holder.downloadButton.setVisibility(GONE);
             holder.downloadStatus.setVisibility(GONE);

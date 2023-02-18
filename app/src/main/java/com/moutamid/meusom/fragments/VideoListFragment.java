@@ -37,6 +37,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.firebase.database.DataSnapshot;
@@ -279,15 +280,7 @@ public class VideoListFragment extends Fragment {
             holder.songName.setText(model.getSongName());
             holder.songAlbumName.setText(model.getSongAlbumName());
 
-            with(getActivity())
-                    .asBitmap()
-                    .load(model.getSongCoverUrl())
-                    .apply(new RequestOptions()
-                            .placeholder(darkgray)
-                            .error(darkerGrey)
-                    )
-                    .diskCacheStrategy(DATA)
-                    .into(holder.songCoverImage);
+            Glide.with(requireContext()).load(model.getSongCoverUrl()).placeholder(R.color.red).into(holder.songCoverImage);
 
             holder.parentLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
