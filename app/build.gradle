@@ -39,14 +39,6 @@ dependencies {
     implementation "io.reactivex.rxjava2:rxandroid:2.1.0"
     implementation "com.devbrackets.android:exomedia:4.3.0"
 
-    implementation 'com.github.hty527.iPlayer:exo:2.1.20'
-    implementation 'com.google.android.exoplayer:exoplayer:2.18.2'
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.18.2'
-    implementation "com.google.android.exoplayer:extension-rtmp:2.18.2"
-    implementation 'com.google.android.exoplayer:exoplayer-dash:2.18.2'
-    implementation "com.google.android.exoplayer:exoplayer-hls:2.18.2"
-    implementation "com.google.android.exoplayer:exoplayer-rtsp:2.18.2"
-
     implementation 'com.github.hty527.iPlayer:iplayer:2.1.20'
     implementation 'com.github.hty527.iPlayer:widget:2.1.20'
     implementation 'com.github.hty527.iPlayer:cache:2.1.20'
