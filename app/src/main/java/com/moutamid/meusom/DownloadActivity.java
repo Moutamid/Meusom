@@ -89,7 +89,7 @@ public class DownloadActivity extends AppCompatActivity {
         } else {
             Constants.databaseReference().child(Constants.SONGS)
                     .child(Constants.auth().getCurrentUser().getUid())
-                    .orderByChild("songYTUrl")
+                    .orderByChild("id")
                     .equalTo(getVideoId(url))
                     .get().addOnSuccessListener(dataSnapshot -> {
                         if (dataSnapshot.exists()) {
@@ -126,9 +126,10 @@ public class DownloadActivity extends AppCompatActivity {
                             }
                         }
                         intent.putExtra(Constants.SONG_NAME, d);
+                        intent.putExtra(Constants.ID, getVideoId(videoLink));
                         intent.putExtra(Constants.videoLink, downloadUrl);
                         intent.putExtra(Constants.SONG_ALBUM_NAME, vMeta.getAuthor());
-                        intent.putExtra(Constants.SONG_COVER_URL, vMeta.getThumbUrl());
+                        intent.putExtra(Constants.SONG_COVER_URL, vMeta.getMqImageUrl());
                         intent.putExtra(Constants.FROM_INTENT, true);
                         startActivity(intent);
                     } catch (Exception e){

@@ -97,6 +97,7 @@ public class CommandExampleActivity extends AppCompatActivity {
 
         if (getIntent().hasExtra(Constants.URL)) {
             songModel.setSongYTUrl(getIntent().getStringExtra(Constants.URL));
+            songModel.setId(getIntent().getStringExtra(Constants.ID));
             songModel.setSongName(getIntent().getStringExtra(Constants.SONG_NAME));
             songModel.setSongAlbumName(getIntent().getStringExtra(Constants.SONG_ALBUM_NAME));
             songModel.setSongCoverUrl(getIntent().getStringExtra(Constants.SONG_COVER_URL));

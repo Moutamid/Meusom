@@ -1,7 +1,7 @@
 package com.moutamid.meusom.models;
 
 public class SongModel {
-    private String songName, songAlbumName, songCoverUrl, songYTUrl, songPushKey, type, songVideoURL;
+    private String Id, songName, songAlbumName, songCoverUrl, songYTUrl, songPushKey, type, songVideoURL;
 
     public SongModel(String songName, String songAlbumName, String songCoverUrl, String songYTUrl, String songPushKey, String type, String songVideoURL) {
         this.songName = songName;
@@ -14,6 +14,14 @@ public class SongModel {
     }
 
     public SongModel() {
+    }
+
+    public String getId() {
+        return Id;
+    }
+
+    public void setId(String id) {
+        Id = id;
     }
 
     public String getSongName() {
