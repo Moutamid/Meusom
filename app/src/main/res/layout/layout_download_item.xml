@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/parentLayout_downloadItem"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/black"
+    android:padding="15dp"
+    >
+
+    <ImageView
+        android:id="@+id/downloadBtnCommand"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_centerVertical="true"
+        android:src="@drawable/donwloadtrack" />
+
+    <ImageView
+        android:id="@+id/song_cover_Command"
+        android:layout_width="70dp"
+        android:layout_toEndOf="@+id/downloadBtnCommand"
+        android:layout_height="60dp"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_marginStart="10dp"
+         />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_marginStart="10dp"
+        android:layout_toStartOf="@id/deleteBtnCommand"
+        android:layout_toEndOf="@id/song_cover_Command"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/song_nameCommand"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/droid_sans_bold"
+            android:maxLines="2"
+            android:text="STEREO LOVE"
+            android:textColor="@color/white"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/song_albumCommand"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:fontFamily="@font/droid_sans_regular"
+            android:maxLines="1"
+            android:text="Edward Maya"
+            android:textColor="@color/white"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/download_statusCommand"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/droid_sans_regular"
+            android:maxLines="1"
+            android:text="@string/not_downloaded"
+            android:textColor="@color/red_theme"
+            android:textSize="11sp" />
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/deleteBtnCommand"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="15dp"
+        android:layout_centerVertical="true"
+        android:src="@drawable/ic_baseline_delete_24" />
+
+</RelativeLayout>

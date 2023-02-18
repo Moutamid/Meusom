@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <item
+        android:bottom="0dp"
+        android:drawable="@drawable/bg_splash_screen"
+        android:left="0dp"
+        android:right="0dp"
+        android:top="0dp" />
+
+
+    <!--    <item-->
+<!--        android:bottom="0dp"-->
+<!--        android:drawable="@color/white"-->
+<!--        android:left="0dp"-->
+<!--        android:right="0dp"-->
+<!--        android:top="0dp" />-->
+
+<!--    <item-->
+<!--        android:width="100dp"-->
+<!--        android:height="100dp"-->
+<!--        android:drawable="@drawable/ic_launcher_music"-->
+<!--        android:gravity="center" />-->
+
+</layer-list>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:background="@color/black"
+    android:gravity="center_vertical"
+    android:padding="12sp"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/downloadBtnCommand"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:src="@drawable/donwloadtrack" />
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/progress"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        app:trackColor="@color/white"
+        android:visibility="gone"
+        app:indicatorColor="@color/red"
+        android:progress="10" />
+
+    <ImageView
+        android:id="@+id/song_cover_Command"
+        android:layout_width="80dp"
+        android:layout_height="70dp"
+        android:src="@color/white"
+        android:scaleType="centerCrop"
+        android:layout_marginStart="10dp"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/song_nameCommand"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/droid_sans_bold"
+            android:maxLines="2"
+            android:text="STEREO LOVE"
+            android:textColor="@color/white"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/song_albumCommand"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:fontFamily="@font/droid_sans_regular"
+            android:maxLines="1"
+            android:text="Edward Maya"
+            android:textColor="@color/white"
+            android:textSize="12sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:fontFamily="@font/droid_sans_regular"
+                android:maxLines="1"
+                android:text="MP3"
+                android:textColor="@color/white"
+                android:textSize="12sp" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="15sp"
+                android:layout_marginStart="5sp"
+                android:layout_marginEnd="5sp"
+                android:background="@color/blanchedalmond" />
+
+            <TextView
+                android:id="@+id/download_statusCommand"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:fontFamily="@font/droid_sans_regular"
+                android:maxLines="1"
+                android:text="@string/not_downloaded"
+                android:textColor="@color/red_theme"
+                android:textSize="11sp" />
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/deleteBtnCommand"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="5dp"
+        android:src="@drawable/ic_baseline_delete_24" />
+
+</LinearLayout>

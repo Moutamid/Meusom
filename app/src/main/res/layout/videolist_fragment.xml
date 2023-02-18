@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/black">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:id="@+id/searchLayoutTracks"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_margin="20dp"
+            android:layout_toStartOf="@id/sortBtnTracks"
+            android:background="@drawable/downloadedittextbg">
+
+            <EditText
+                android:id="@+id/searchEditTextTracks"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_toStartOf="@id/crossBtnTracks"
+                android:background="@android:color/transparent"
+                android:inputType="text"
+                android:paddingStart="20dp"
+                android:textColor="@color/black" />
+
+            <ImageView
+                android:id="@+id/crossBtnTracks"
+                android:layout_width="30dp"
+                android:layout_height="match_parent"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="10dp"
+                android:rotation="180"
+                android:src="@drawable/ic_baseline_close_24" />
+
+
+        </RelativeLayout>
+
+        <ImageView
+            android:id="@+id/sortBtnTracks"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="20dp"
+            android:src="@drawable/ic_baseline_sort_24" />
+
+    </RelativeLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/tracksRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:itemCount="4"
+        tools:listitem="@layout/layout_download_item" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="200dp" />
+
+</LinearLayout>

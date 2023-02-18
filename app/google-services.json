@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "590418472574",
+    "project_id": "meusom-the-music-player",
+    "storage_bucket": "meusom-the-music-player.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:590418472574:android:616c3db49f81d77d72b22f",
+        "android_client_info": {
+          "package_name": "com.moutamid.meusom"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "590418472574-j083itvsqol6vg010bqglqah7i1u97gr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAsYjniQqNoKSXfpCeZmZTre-3DPjCu-Ug"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "590418472574-j083itvsqol6vg010bqglqah7i1u97gr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/titleAscending"
+        android:title="Ascending" />
+    <item
+        android:id="@+id/titleDescending"
+        android:title="Descending" />
+    <item
+        android:id="@+id/albumAscending"
+        android:title="Album Ascending" />
+    <item
+        android:id="@+id/albumDescending"
+        android:title="Album Descending" />
+    <item
+        android:id="@+id/originalOrder"
+        android:title="Original" />
+    <item
+        android:id="@+id/reverseOrder"
+        android:title="Reverse" />
+
+</menu>
