@@ -34,6 +34,7 @@ public class DownloadActivity extends AppCompatActivity {
     private boolean isIntent = false;
     public ProgressDialog progressDialog;
     String url;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,9 +113,21 @@ public class DownloadActivity extends AppCompatActivity {
         new YouTubeExtractor(this) {
             @Override
             public void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta vMeta) {
-                Log.d(TAG, "onExtractionComplete: "+ytFiles.toString());
+                Log.d(TAG, "onExtractionComplete: " + ytFiles.toString());
                 TextView textView = findViewById(R.id.exampleText);
                 textView.setText(ytFiles.toString());
+
+                for (int i = 0; i < 300; i++) {
+
+                    try {
+                        String format = i + " format: " + ytFiles.get(i).getFormat();
+                        Log.d(TAG, "onExtractionComplete: " + format);
+                    } catch (Exception e) {
+//                        Log.d(TAG, "onExtractionComplete: NULL: " + i);
+                    }
+
+                }
+
                 if (ytFiles != null) {
                     String downloadUrl = "";
                     String audioURL = "";
@@ -127,8 +140,8 @@ public class DownloadActivity extends AppCompatActivity {
                         intent.putExtra(Constants.URL, audioURL);
 
                         String d = vMeta.getTitle();
-                        for (String s : Constants.special){
-                            if (d.contains(s)){
+                        for (String s : Constants.special) {
+                            if (d.contains(s)) {
                                 d = d.replace(s, "");
                             }
                         }
@@ -142,7 +155,7 @@ public class DownloadActivity extends AppCompatActivity {
                         intent.putExtra(Constants.SONG_COVER_URL, coverUrl);
                         intent.putExtra(Constants.FROM_INTENT, true);
                         startActivity(intent);
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                         Toast.makeText(context, "Video link is not valid", Toast.LENGTH_SHORT).show();
                     }
