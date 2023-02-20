@@ -271,6 +271,8 @@ public class TracksFragment extends Fragment {
                 public void onClick(View view) {
                     utils.storeBoolean(getActivity(), Constants.IS_PLAYLIST, false);
 
+                    Stash.put(Constants.IS_CLICKED, true);
+
 //                    Intent intent = getActivity().getIntent();
 ////                    intent.putExtra(Constants.SONG_INDEX, position);
 ////                    intent.putExtra(Constants.SONG_NAME, model.getSongName());

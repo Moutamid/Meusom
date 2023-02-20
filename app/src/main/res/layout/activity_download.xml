@@ -90,14 +90,22 @@
 
         </RelativeLayout>
 
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/droid_sans_regular"
             android:gravity="center"
+            android:id="@+id/exampleText"
+            android:textIsSelectable="true"
             android:text="@string/ex_www_youtube_com"
             android:textColor="@color/white"
             android:textSize="13sp" />
+
+        </ScrollView>
 
     </LinearLayout>
 

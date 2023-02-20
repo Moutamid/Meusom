@@ -10,7 +10,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.Manifest;
 import android.animation.Animator;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -58,7 +57,7 @@ import at.huber.youtubeExtractor.YtFile;
 import musicplayer.Utilities;
 
 public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCompletionListener, SeekBar.OnSeekBarChangeListener {
-    private static final String TAG = "MainActivity";
+    private static final String TAG = "TAGG";
     private Context context = MainActivity.this;
 
     private Utils utils = new Utils();
@@ -98,7 +97,7 @@ public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCo
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        Log.d(TAG, "onCreate: ");
         if (utils.getStoredString(context, Constants.LANGUAGE).equals(Constants.ENGLISH)) {
             utils.changeLanguage(context, "en");
         } else if (utils.getStoredString(context, Constants.LANGUAGE).equals(Constants.PORTUGUESE)) {
@@ -453,6 +452,7 @@ public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCo
     }
 
     private void initVolumeSeekbar() {
+        Log.d(TAG, "initVolumeSeekbar: ");
         AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         int maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
         int curVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
@@ -481,7 +481,7 @@ public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCo
     private RecyclerViewAdapterMessages adapter;
 
     private void initRecyclerView(Dialog dialog) {
-
+        Log.d(TAG, "initRecyclerView: ");
         conversationRecyclerView = dialog.findViewById(R.id.queueRecyclerView);
         //conversationRecyclerView.addItemDecoration(new DividerItemDecoration(conversationRecyclerView.getContext(), DividerItemDecoration.VERTICAL));
         adapter = new RecyclerViewAdapterMessages();
@@ -499,21 +499,7 @@ public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCo
 
         conversationRecyclerView.setAdapter(adapter);
 
-        //    if (adapter.getItemCount() != 0) {
-
-        //        noChatsLayout.setVisibility(View.GONE);
-        //        chatsRecyclerView.setVisibility(View.VISIBLE);
-
-        //    }
-
     }
-
-    /*public static int calculateNoOfColumns(Context context, float columnWidthDp) { // For example columnWidthdp=180
-        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-        float screenWidthDp = displayMetrics.widthPixels / displayMetrics.density;
-        int noOfColumns = (int) (screenWidthDp / columnWidthDp + 0.5); // +0.5 for correct rounding to int.
-        return noOfColumns;
-    }*/
 
     private class RecyclerViewAdapterMessages extends RecyclerView.Adapter
             <RecyclerViewAdapterMessages.ViewHolderRightMessage> {
@@ -529,7 +515,7 @@ public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCo
 
         @Override
         public void onBindViewHolder(@NonNull final ViewHolderRightMessage holder, int position1) {
-
+            Log.d(TAG, "onBindViewHolder: ");
             int position = holder.getAdapterPosition();
 
             holder.title.setText(songsList.get(position).getSongName());
@@ -590,11 +576,17 @@ public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCo
 
     //-----------------------------------------------------
     private void getSongsList() {
+        Log.d(TAG, "getSongsList: ");
         songsList.clear();
         songsListAll.clear();
 
         ArrayList<SongModel> list = Stash.getArrayList(Constants.OFF_DATA, SongModel.class);
+
+        if (list.size() == 0)
+            return;
+
         for(SongModel model: list) {
+            Log.d(TAG, "getSongsList: loop");
             if (utils.fileExists(model.getSongName())) {
                 songsList.add(model);
                 songsListAll.add(model);
@@ -602,32 +594,83 @@ public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCo
         }
 
         if (firstTime) {
+            Log.d(TAG, "getSongsList: firstTime");
 
             // PLAYLIST LOADED
             // By default play first song
             currentSongIndex = utils.getStoredInteger(MainActivity.this, Constants.LAST_SONG_INDEX);
 
-            playSong(currentSongIndex);
+            SongModel currentSongModel = songsList.get(currentSongIndex);
+
+                // TITLE BIG PLAYER
+                String songTitle = currentSongModel.getSongName();
+                songTitleLabel.setText(songTitle);
+
+                //TITLE SMALL PLAYER
+                TextView titleSmall = findViewById(R.id.title_small_playerHome);
+//            titleSmall.setSelected(true);
+                titleSmall.setText(songTitle);
+
+                // ALBUM NAME SMALL PLAYER
+                TextView albumName = findViewById(R.id.albumNameHome);
+//            albumName.setSelected(true);
+                albumName.setText(currentSongModel.getSongAlbumName());
+
+                // COVER IMAGE BIG PLAYER
+                with(context)
+                        .asBitmap()
+                        .load(currentSongModel.getSongCoverUrl())
+                        .apply(new RequestOptions()
+                                .placeholder(R.color.lightBlack)
+                                .error(lightBlack)
+                        )
+                        .diskCacheStrategy(DATA)
+                        .into((ImageView) findViewById(R.id.songCoverImage));
+
+                // COVER IMAGE SMALL PLAYER
+                with(context)
+                        .asBitmap()
+                        .load(currentSongModel.getSongCoverUrl())
+                        .apply(new RequestOptions()
+                                .placeholder(R.color.lightBlack)
+                                .error(lightBlack)
+                        )
+                        .diskCacheStrategy(DATA)
+                        .into((ImageView) findViewById(R.id.current_music_player_image_view));
+
+                // set Progress bar values
+                songProgressBar.setProgress(0);
+                songProgressBarSmall.setProgress(0);
+                songProgressBar.setMax(100);
+                songProgressBarSmall.setMax(100);
+
+            /*playSong(currentSongIndex);/
 
             // check for already playing
             if (mp.isPlaying()) {
                 if (mp != null) {
+                    Log.d(TAG, "getSongsList: mp.pause()");
                     mp.pause();
                     // Changing button image to play button
                     btnPlay.setImageResource(R.drawable.play);
                     btnPlaySmall.setImageResource(R.drawable.play);
                 }
-            }
+            }*/
             firstTime = false;
         } else {
-            for (int i = 0; i <= songsList.size() - 1; i++) {
-                if (songsList.get(i).getSongName().equals(Stash.getString(Constants.PUSH_KEY))) {
-                    currentSongIndex = i;
-                    break;
-                }
-            }
+            Log.d(TAG, "getSongsList: else {");
 
-            playSong(currentSongIndex);
+            if (Stash.getBoolean(Constants.IS_CLICKED, false)) {
+                for (int i = 0; i <= songsList.size() - 1; i++) {
+                    if (songsList.get(i).getSongName().equals(Stash.getString(Constants.PUSH_KEY))) {
+                        currentSongIndex = i;
+                        break;
+                    }
+                }
+                Log.d(TAG, "getSongsList: playSong(): " + currentSongIndex);
+                playSong(currentSongIndex);
+                Stash.put(Constants.IS_CLICKED, false);
+            }
         }
     }
 
@@ -659,9 +702,9 @@ public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCo
     @Override
     protected void onResume() {
         super.onResume();
+        Log.d(TAG, "onResume: ");
+
         getSongsList();
-
-
 
         /*if (utils.getStoredBoolean(context, Constants.IS_PLAYLIST)) {
             String playListName = utils.getStoredString(context, Constants.NAME);
@@ -678,8 +721,9 @@ public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCo
      * @param songIndex - index of song
      */
     public void playSong(int songIndex) {
-
+        Log.d(TAG, "playSong: songIndex: "+songIndex);
         if (!isStoragePermissionGranted()) {
+            Log.d(TAG, "playSong: ");
             Toast.makeText(context, "grant storage permission and retry", Toast.LENGTH_LONG).show();
             return;
         }
@@ -766,12 +810,14 @@ public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCo
     }
 
     public boolean isStoragePermissionGranted() {
+//        Log.d(TAGG, "isStoragePermissionGranted: ");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     == PackageManager.PERMISSION_GRANTED) {
                 return true;
             } else {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                ActivityCompat.requestPermissions(this, new String[]{
+                        android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
                 return false;
             }
         } else {
@@ -812,6 +858,7 @@ public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCo
      */
     private Runnable mUpdateTimeTask = new Runnable() {
         public void run() {
+            Log.d(TAG, "run: 824");
             long totalDuration = mp.getDuration();
             long currentDuration = mp.getCurrentPosition();
 
@@ -879,7 +926,7 @@ public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCo
      */
     @Override
     public void onCompletion(MediaPlayer arg0) {
-
+        Log.d(TAG, "onCompletion: ");
         // check for repeat is ON or OFF
         if (isRepeat) {
             // repeat is on play same song again
@@ -910,6 +957,7 @@ public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCo
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.d(TAG, "onDestroy: ");
         mHandler.removeCallbacks(mUpdateTimeTask);
         mp.release();
     }
@@ -918,7 +966,7 @@ public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCo
     private LinearLayout buttonsLayout;
 
     private void initViewsAndLayouts() {
-
+        Log.d(TAG, "initViewsAndLayouts: ");
         bottom_music_layout = findViewById(R.id.bottom_music_layout);
         music_player_layout = findViewById(R.id.music_player_layout);
 
@@ -1062,6 +1110,7 @@ public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCo
 
     @Override
     public void onBackPressed() {
+        Log.d(TAG, "onBackPressed: ");
         if (slideUpB) {
             slideDown();
             return;

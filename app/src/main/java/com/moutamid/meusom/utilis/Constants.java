@@ -57,6 +57,7 @@ public class Constants {
     public static final String ALB_ASCENDING = "alb_ascending";
     public static final String T_DESCENDING = "t_descending";
     public static final String T_ASCENDING = "t_ascending";
+    public static final String IS_CLICKED = "IS_CLICKED";
 
     public static void checkApp(Activity activity) {
         String appName = "meusom";

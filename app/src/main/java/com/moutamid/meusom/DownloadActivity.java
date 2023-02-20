@@ -9,9 +9,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.moutamid.meusom.utilis.Constants;
@@ -86,11 +88,13 @@ public class DownloadActivity extends AppCompatActivity {
         if (TextUtils.isEmpty(getVideoId(url))) {
             editText.setError("Wrong url!");
         } else {
+            Log.d(TAG, "executeDownloadTask: else {");
             Constants.databaseReference().child(Constants.SONGS)
                     .child(Constants.auth().getCurrentUser().getUid())
                     .orderByChild("songYTUrl")
                     .equalTo(getVideoId(url))
                     .get().addOnSuccessListener(dataSnapshot -> {
+                        Log.d(TAG, "executeDownloadTask: successListener");
                         if (dataSnapshot.exists()) {
                             Toast.makeText(DownloadActivity.this, "ALREADY DOWNLOADED", Toast.LENGTH_SHORT).show();
                         } else {
@@ -108,6 +112,9 @@ public class DownloadActivity extends AppCompatActivity {
         new YouTubeExtractor(this) {
             @Override
             public void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta vMeta) {
+                Log.d(TAG, "onExtractionComplete: "+ytFiles.toString());
+                TextView textView = findViewById(R.id.exampleText);
+                textView.setText(ytFiles.toString());
                 if (ytFiles != null) {
                     String downloadUrl = "";
                     String audioURL = "";
