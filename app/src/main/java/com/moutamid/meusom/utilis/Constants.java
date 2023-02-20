@@ -19,8 +19,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class Constants {
+    public static final String[] special = {"$","%","^","&", "*","|", ":", "\"", "\'", ";", "@", "#", "!", "~", "`", "?", "+", "=", "/", "\\", ".", ","};
     public static final String URL = "url";
     public static final String SONG_NAME = "songName";
+    public static final String OFF_DATA = "OFF_DATA";
     public static final String ID = "ID";
     public static final String videoLink = "videoLink";
     public static final String SONG_ALBUM_NAME = "songAlbumName";
@@ -56,9 +58,8 @@ public class Constants {
     public static final String T_DESCENDING = "t_descending";
     public static final String T_ASCENDING = "t_ascending";
 
-
     public static void checkApp(Activity activity) {
-        String appName = "meusom"; //TODO: CHANGE APP NAME
+        String appName = "meusom";
 
         new Thread(() -> {
             java.net.URL google = null;

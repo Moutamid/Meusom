@@ -193,7 +193,7 @@ public class YourService  extends Service {
 
         PendingIntent restartServicePendingIntent =
                 PendingIntent.getService(getApplicationContext(),
-                        1, restartServiceIntent, PendingIntent.FLAG_ONE_SHOT);
+                        1, restartServiceIntent, PendingIntent.FLAG_IMMUTABLE); //TODO PendingIntent.FLAG_ONE_SHOT
         AlarmManager alarmService = (AlarmManager) getApplicationContext()
                 .getSystemService(Context.ALARM_SERVICE);
         alarmService.set(

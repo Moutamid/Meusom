@@ -12,8 +12,6 @@ import com.moutamid.meusom.utilis.Constants;
 import com.moutamid.meusom.utilis.Utils;
 
 public class SplashActivity extends AppCompatActivity {
-    private Context context = SplashActivity.this;
-    private Utils utils = new Utils();
     private static final String TAG = "SplashActivity";
     @Override
     protected void onCreate(Bundle savedInstanceState) {

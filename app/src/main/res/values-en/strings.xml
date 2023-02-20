@@ -1,0 +1,63 @@
+<resources>
+    <string name="app_name">MEUSOM</string>
+    <string name="register">REGISTER</string>
+    <string name="login_email_hint">Email</string>
+    <string name="login_password_hint">Password</string>
+    <string name="signup_login_hint">Already have an account? Sign In</string>
+    <string name="login_signup_hint">Don\'t have an account? Sign Up</string>
+    <string name="command_error">enter a valid command</string>
+    <string name="command_complete">Command Complete</string>
+    <string name="command_failed">Command Failed</string>
+    <string name="use_config_file">Use Config File?</string>
+    <string name="command_start">Starting Command</string>
+    <string name="btn_command_example">Custom Command Example</string>
+    <string name="btn_update">Update Youtube-DL</string>
+    <string name="btn_start_stream">Start Stream</string>
+    <string name="btn_start_download">Start Download</string>
+    <string name="url_hint">enter url here</string>
+    <string name="btn_run_command">Run Command</string>
+    <string name="command_hint">enter command here</string>
+    <string name="url_error">enter a valid url</string>
+    <string name="start">Do the thing</string>
+    <string name="example_command">Example command: --extract-audio --audio-format mp3 -o /sdcard/Download/youtubedl-android/%(title)s.%(ext)s https://www.youtube.com/watch?v=dQw4w9WgXcQ</string>
+    <string name="email">Email</string>
+    <string name="meusom">Meusom</string>
+    <string name="password">Password</string>
+    <string name="ex_www_youtube_com">ex: www.youtube.com/...</string>
+    <string name="insert_the_link">INSERT THE LINK</string>
+    <string name="download">DOWNLOAD</string>
+    <string name="tracks_included">TRACKS INCLUDED</string>
+    <string name="watch_advertising">WATCH ADVERTISING</string>
+    <string name="settings">SETTINGS</string>
+    <string name="storage">STORAGE</string>
+    <string name="to_listen_to_your_songs_we_use_the_chache_memory_to_increase_the_storage_volume_just_increase_the_it_according_to_your_need">To listen to your songs, we use the chache memory, to increase the storage volume just increase the it according to your need.</string>
+    <string name="note_each_device_has_a_storage_limit">Note: Each device has a storage limit.</string>
+    <string name="total_cache_memory_nused_space_niincrease_cache_space">TOTAL CACHE MEMORY: \nUSED SPACE: \nIINCREASE CACHE SPACE:</string>
+    <string name="standard_value_256mb_maximum_value_1024mb">STANDARD VALUE 256MB, MAXIMUM VALUE 1024MB</string>
+    <string name="sound_equalizer">SOUND EQUALIZER</string>
+    <string name="language">LANGUAGE</string>
+    <string name="terms_and_conditions">TERMS AND CONDITIONS</string>
+    <string name="track">Track</string>
+    <string name="album">Album</string>
+    <string name="playlist">Playlist</string>
+    <string name="principle">PRINCIPLE</string>
+    <string name="advertising">ADVERTISING</string>
+    <string name="exit">EXIT</string>
+    <string name="my_sound">MY SOUND</string>
+    <string name="name_of_artist">Name of artist</string>
+    <string name="name_of_music">Name of music</string>
+    <string name="not_downloaded">NOT DOWNLOADED</string>
+    <string name="queue">QUEUE</string>
+    <string name="playlist_details">PLAYLIST DETAILS</string>
+    <string name="playlist_name">Playlist name</string>
+    <string name="songs_included">Songs included</string>
+    <string name="fb_interstitial_id">IMG_16_9_APP_INSTALL#YOUR_PLACEMENT_ID</string>
+    <string name="fb_banner_id">IMG_16_9_APP_INSTALL#YOUR_PLACEMENT_ID</string>
+    <string name="admob_app_id">ca-app-pub-3940256099942544~3347511713</string>
+    <string name="admob_interstitial_id">ca-app-pub-3940256099942544/1033173712</string>
+    <string name="admob_banner_id">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="sign_out">SIGN OUT</string>
+    <string name="by_continuing_you_agree_to_our_terms_and_conditions">By continuing, you agree to our terms and conditions</string>
+
+
+</resources>

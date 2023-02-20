@@ -1,11 +1,7 @@
 package com.moutamid.meusom;
 
 import static com.bumptech.glide.Glide.with;
-import static com.bumptech.glide.load.engine.DiskCacheStrategy.DATA;
-import static com.moutamid.meusom.R.color.darkerGrey;
-import static com.moutamid.meusom.R.color.darkgray;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -14,33 +10,34 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
+import android.util.SparseArray;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.request.RequestOptions;
 import com.downloader.PRDownloader;
 import com.downloader.PRDownloaderConfig;
+import com.fxn.stash.Stash;
 import com.google.firebase.database.DataSnapshot;
 import com.moutamid.meusom.adapter.DownloadAdapter;
+import com.moutamid.meusom.models.SongIDModel;
 import com.moutamid.meusom.models.SongModel;
 import com.moutamid.meusom.utilis.Constants;
 import com.moutamid.meusom.utilis.Utils;
 
-import java.io.File;
 import java.util.ArrayList;
 
+import at.huber.youtubeExtractor.VideoMeta;
+import at.huber.youtubeExtractor.YouTubeExtractor;
+import at.huber.youtubeExtractor.YtFile;
 import io.reactivex.disposables.CompositeDisposable;
 
 public class CommandExampleActivity extends AppCompatActivity {
@@ -53,16 +50,8 @@ public class CommandExampleActivity extends AppCompatActivity {
     private Utils utils = new Utils();
     private boolean isIntent = false;
     String videoLink;
-    private Button btnRunCommand;
-    private EditText etCommand;
-    private ProgressBar progressBar;
-    private TextView tvCommandStatus;
-    private TextView tvCommandOutput;
-    private ProgressBar pbLoading;
     ProgressDialog progressDialog;
     private SongModel songModel = new SongModel();
-    private boolean running = false;
-    private CompositeDisposable compositeDisposable = new CompositeDisposable();
     String[] permission = {android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.MANAGE_EXTERNAL_STORAGE};
 
 
@@ -91,9 +80,6 @@ public class CommandExampleActivity extends AppCompatActivity {
 
         initRecyclerView();
 
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setCancelable(false);
-        progressDialog.setMessage("Please Wait...");
 
         if (getIntent().hasExtra(Constants.URL)) {
             songModel.setSongYTUrl(getIntent().getStringExtra(Constants.URL));
@@ -112,13 +98,13 @@ public class CommandExampleActivity extends AppCompatActivity {
                     .setPositiveButton("Video", (dialog, which) -> {
                         songModel.setType("video");
                         startDownload();
-                        progressDialog.show();
                         dialog.dismiss();
+                        Stash.put(songModel.getId(), "video");
                     })
                     .setNegativeButton("Audio", (dialog, which) -> {
                         songModel.setType("audio");
                         startDownload();
-                        progressDialog.show();
+                        Stash.put(songModel.getId(), "audio");
                         dialog.dismiss();
                     }).show();
 
@@ -129,39 +115,15 @@ public class CommandExampleActivity extends AppCompatActivity {
     }
 
     private void startDownload() {
-        Constants.databaseReference().child(Constants.SONGS)
-                .child(Constants.auth().getCurrentUser().getUid())
-                .get().addOnSuccessListener(dataSnapshot -> {
-                    if (dataSnapshot.exists()) {
-                        songModelArrayList.clear();
-                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                            SongModel songModel1 = snapshot.getValue(SongModel.class);
-                            songModel1.setSongPushKey(snapshot.getKey());
-                            songModelArrayList.add(songModel1);
-                        }
-                        if (isIntent){
-                            songModelArrayList.add(songModel);
-                        }
-                        TextView tv = findViewById(R.id.songCountTextView);
-                        tv.setText("(" + songModelArrayList.size() + ")");
-                        adapter = new DownloadAdapter(CommandExampleActivity.this, songModelArrayList);
-                        conversationRecyclerView.setAdapter(adapter);
+        songModelArrayList = Stash.getArrayList(Constants.OFF_DATA, SongModel.class);
+        if (isIntent){
+            songModelArrayList.add(songModel);
+        }
 
-                        progressDialog.dismiss();
-                    } else {
-                        if (isIntent){
-                            songModelArrayList.add(songModel);
-                            TextView tv = findViewById(R.id.songCountTextView);
-                            tv.setText("(" + songModelArrayList.size() + ")");
-                            adapter = new DownloadAdapter(CommandExampleActivity.this, songModelArrayList);
-                            conversationRecyclerView.setAdapter(adapter);
-                        }
-
-                        progressDialog.dismiss();
-                    }
-                }).addOnFailureListener(e -> {
-                    progressDialog.dismiss();
-                });
+        TextView tv = findViewById(R.id.songCountTextView);
+        tv.setText("(" + songModelArrayList.size() + ")");
+        adapter = new DownloadAdapter(CommandExampleActivity.this, songModelArrayList);
+        conversationRecyclerView.setAdapter(adapter);
     }
 
 

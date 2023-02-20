@@ -9,7 +9,6 @@ import android.view.View;
 
 import com.google.android.material.tabs.TabLayout;
 import com.moutamid.meusom.adapter.SectionsPageAdapter;
-import com.moutamid.meusom.fragments.AlbumFragment;
 import com.moutamid.meusom.fragments.VideoListFragment;
 import com.moutamid.meusom.fragments.TracksFragment;
 import com.moutamid.meusom.utilis.Constants;

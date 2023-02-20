@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.animation.Animator;
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -23,6 +24,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,9 +40,11 @@ import android.widget.Toast;
 import com.bumptech.glide.request.RequestOptions;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
+import com.fxn.stash.Stash;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
+import com.moutamid.meusom.models.SongIDModel;
 import com.moutamid.meusom.models.SongModel;
 import com.moutamid.meusom.utilis.Constants;
 import com.moutamid.meusom.utilis.Utils;
@@ -48,6 +52,9 @@ import com.moutamid.meusom.utilis.Utils;
 import java.util.ArrayList;
 import java.util.Random;
 
+import at.huber.youtubeExtractor.VideoMeta;
+import at.huber.youtubeExtractor.YouTubeExtractor;
+import at.huber.youtubeExtractor.YtFile;
 import musicplayer.Utilities;
 
 public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCompletionListener, SeekBar.OnSeekBarChangeListener {
@@ -583,72 +590,38 @@ public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCo
 
     //-----------------------------------------------------
     private void getSongsList() {
-        Constants.databaseReference().child(Constants.SONGS)
-                .child(Constants.auth().getCurrentUser().getUid())
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if (!snapshot.exists()) {
-                            return;
-                        }
+        songsList.clear();
+        songsListAll.clear();
 
-                        songsList.clear();
-                        songsListAll.clear();
+        ArrayList<SongModel> list = Stash.getArrayList(Constants.OFF_DATA, SongModel.class);
+        for(SongModel model: list) {
+            if (utils.fileExists(model.getSongName())) {
+                songsList.add(model);
+                songsListAll.add(model);
+            }
+        }
 
-                        for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+        if (firstTime) {
 
-                            SongModel songModel1 = dataSnapshot.getValue(SongModel.class);
+            // PLAYLIST LOADED
+            // By default play first song
+            currentSongIndex = utils.getStoredInteger(MainActivity.this, Constants.LAST_SONG_INDEX);
 
-                            if (utils.fileExists(songModel1.getSongName())) {
-                                songModel1.setSongPushKey(dataSnapshot.getKey());
-                                songsList.add(songModel1);
-                                songsListAll.add(songModel1);
-                            }
+            playSong(currentSongIndex);
 
-                        }
-
-                        if (firstTime) {
-
-                            // PLAYLIST LOADED
-                            // By default play first song
-                            currentSongIndex = utils.getStoredInteger(MainActivity.this, Constants.LAST_SONG_INDEX);
-
-                            playSong(currentSongIndex);
-
-                            // check for already playing
-                            if (mp.isPlaying()) {
-                                if (mp != null) {
-                                    mp.pause();
-                                    // Changing button image to play button
-                                    btnPlay.setImageResource(R.drawable.play);
-                                    btnPlaySmall.setImageResource(R.drawable.play);
-                                }
-                            }
-                            firstTime = false;
-                        }
-//                        Toast.makeText(context, "Playlist loaded! You can now tap on the play button to play your music!", Toast.LENGTH_LONG).show();
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        Toast.makeText(context, error.toException().getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+            // check for already playing
+            if (mp.isPlaying()) {
+                if (mp != null) {
+                    mp.pause();
+                    // Changing button image to play button
+                    btnPlay.setImageResource(R.drawable.play);
+                    btnPlaySmall.setImageResource(R.drawable.play);
+                }
+            }
+            firstTime = false;
+        }
     }
 
-//    private boolean fileExists(String name) {
-//        String path = Environment
-//                .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-//                + File.separator
-//                + "Meusom."
-//                + File.separator
-//                + name
-//                + ".mp3";
-//
-//        File file = new File(path);
-//        return file.exists();
-//
-//    }
 
     /**
      * Receiving song index from playlist view
@@ -679,36 +652,6 @@ public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCo
 
     }
 
-    /*private void sortTheList() {
-        String sortType = utils.getStoredString(MainActivity.this, Constants.SORT);
-
-        if (sortType.equals(Constants.T_ASCENDING)) {
-            Collections.sort(songsList,
-                    (songModel, t1) -> songModel.getSongName().compareTo(t1.getSongName()));
-        }
-        if (sortType.equals(Constants.T_DESCENDING)) {
-            Collections.sort(songsList,
-                    (songModel, t1) -> songModel.getSongName().compareTo(t1.getSongName()));
-            Collections.reverse(songsList);
-        }
-        if (sortType.equals(Constants.ALB_ASCENDING)) {
-            Collections.sort(songsList,
-                    (songModel, t1) -> songModel.getSongAlbumName().compareTo(t1.getSongAlbumName()));
-        }
-        if (sortType.equals(Constants.ALB_DESCENDING)) {
-            Collections.sort(songsList,
-                    (songModel, t1) -> songModel.getSongAlbumName().compareTo(t1.getSongAlbumName()));
-            Collections.reverse(songsList);
-        }
-        if (sortType.equals(Constants.ORIGINAL)) {
-            songsList = songsListAll;
-        }
-        if (sortType.equals(Constants.REVERSED)) {
-            Collections.reverse(songsList);
-        }
-        if (adapter != null)
-            adapter.notifyDataSetChanged();
-    }*/
 
     @Override
     protected void onResume() {
@@ -716,7 +659,6 @@ public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCo
 
         if (utils.getStoredBoolean(context, Constants.IS_PLAYLIST)) {
             String playListName = utils.getStoredString(context, Constants.NAME);
-
             getPlaylist(playListName);
         } else {
             getSongsList();
@@ -725,61 +667,17 @@ public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCo
 
     private void getPlaylist(String playListName) {
 //        Toast.makeText(context, playListName, Toast.LENGTH_SHORT).show();
-        Constants.databaseReference().child(Constants.PLAYLIST)
-                .child(Constants.auth().getCurrentUser().getUid())
-                .child(playListName)
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if (!snapshot.exists()) {
-                            Toast.makeText(context, "Data doesn't exist!", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-
-                        songsList.clear();
-                        songsListAll.clear();
-
-                        for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-
-                            SongModel songModel1 = dataSnapshot.getValue(SongModel.class);
-
-                            if (utils.fileExists(songModel1.getSongName())) {
-                                songModel1.setSongPushKey(dataSnapshot.getKey());
-                                songsList.add(songModel1);
-                                songsListAll.add(songModel1);
-                            }
-
-                        }
-
-//                        Toast.makeText(context, "Playlist loaded.", Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        Log.d(TAG, "onCancelled: " + error.toException().getMessage());
-                        Toast.makeText(context, error.toException().getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+        ArrayList<SongModel> list = Stash.getArrayList(Constants.OFF_DATA, SongModel.class);
+        songsList.clear();
+        songsListAll.clear();
+        for(SongModel model: list) {
+            if (utils.fileExists(model.getSongName())) {
+                songsList.add(model);
+                songsListAll.add(model);
+            }
+        }
     }
 
-//    private String getSongPath1(int songIndex, String name) {
-//        String path = Environment
-//                .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-//                + File.separator
-//                + "Meusom."
-//                + File.separator
-//                + name
-//                + ".mp3";
-//
-////        File file = new File(path);
-////        if (!file.exists()) {
-////            Toast.makeText(context, "if (!file.exists()) {", Toast.LENGTH_SHORT).show();
-////            path = songsList.get(songIndex).getSongYTUrl();
-////            Toast.makeText(context, path, Toast.LENGTH_SHORT).show();
-////        }
-//
-//        return path;
-//    }
 
     /**
      * Function to play a song

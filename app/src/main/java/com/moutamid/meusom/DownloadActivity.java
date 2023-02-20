@@ -31,7 +31,6 @@ public class DownloadActivity extends AppCompatActivity {
     private EditText editText;
     private boolean isIntent = false;
     public ProgressDialog progressDialog;
-    String[] special = {"$","%","^","&", "*","|", ":", "\"", "\'", ";", "@", "#", "!", "~", "`", "?", "+", "=", "/", "\\", ".", ","};
     String url;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,7 +88,7 @@ public class DownloadActivity extends AppCompatActivity {
         } else {
             Constants.databaseReference().child(Constants.SONGS)
                     .child(Constants.auth().getCurrentUser().getUid())
-                    .orderByChild("id")
+                    .orderByChild("songYTUrl")
                     .equalTo(getVideoId(url))
                     .get().addOnSuccessListener(dataSnapshot -> {
                         if (dataSnapshot.exists()) {
@@ -119,17 +118,21 @@ public class DownloadActivity extends AppCompatActivity {
                         audioURL = ytFiles.get(atag).getUrl();
                         Intent intent = new Intent(DownloadActivity.this, CommandExampleActivity.class);
                         intent.putExtra(Constants.URL, audioURL);
+
                         String d = vMeta.getTitle();
-                        for (String s : special){
+                        for (String s : Constants.special){
                             if (d.contains(s)){
                                 d = d.replace(s, "");
                             }
                         }
+                        String coverUrl = vMeta.getHqImageUrl();
+                        coverUrl = coverUrl.replace("http", "https");
+
                         intent.putExtra(Constants.SONG_NAME, d);
                         intent.putExtra(Constants.ID, getVideoId(videoLink));
                         intent.putExtra(Constants.videoLink, downloadUrl);
                         intent.putExtra(Constants.SONG_ALBUM_NAME, vMeta.getAuthor());
-                        intent.putExtra(Constants.SONG_COVER_URL, vMeta.getMqImageUrl());
+                        intent.putExtra(Constants.SONG_COVER_URL, coverUrl);
                         intent.putExtra(Constants.FROM_INTENT, true);
                         startActivity(intent);
                     } catch (Exception e){

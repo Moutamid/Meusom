@@ -19,6 +19,9 @@
         android:theme="@style/Theme.Meusom"
         tools:targetApi="31">
         <activity
+            android:name=".WaitingActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity2"
             android:exported="true"
             android:noHistory="true"
@@ -55,7 +58,6 @@
             android:exported="false" />
         <activity
             android:name=".SplashActivity"
-            android:configChanges="uiMode"
             android:exported="true"
             android:noHistory="true"
             android:screenOrientation="fullSensor"

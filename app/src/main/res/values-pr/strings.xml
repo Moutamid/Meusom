@@ -1,0 +1,63 @@
+<resources>
+    <string name="app_name">MEUSOM</string>
+    <string name="register">CADASTRAR</string>
+    <string name="login_email_hint">Email</string>
+    <string name="login_password_hint">Senha</string>
+    <string name="signup_login_hint">Já possui uma conta ? Entrar</string>
+    <string name="login_signup_hint">NÃO POSSUI UMA CONTA ?</string>
+    <string name="command_error">Insira um comando válido</string>
+    <string name="command_complete">Completo</string>
+    <string name="command_failed">Falha</string>
+    <string name="use_config_file">Use Config File?</string>
+    <string name="command_start">Iniciando</string>
+    <string name="btn_command_example">Custom Command Example</string>
+    <string name="btn_update">Atualizar Youtube-DL</string>
+    <string name="btn_start_stream">Iniciar transmissão</string>
+    <string name="btn_start_download">Iniciar download</string>
+    <string name="url_hint">Insira url aqui</string>
+    <string name="btn_run_command">Comando de execução</string>
+    <string name="command_hint">Insira o comando aqui</string>
+    <string name="url_error">insira uma url válida</string>
+    <string name="start">Executar</string>
+    <string name="example_command">Example command: --extract-audio --audio-format mp3 -o /sdcard/Download/youtubedl-android/%(title)s.%(ext)s https://www.youtube.com/watch?v=dQw4w9WgXcQ</string>
+    <string name="email">Email</string>
+    <string name="meusom">MEUSOM</string>
+    <string name="password">Senha</string>
+    <string name="ex_www_youtube_com">ex: www.youtube.com/...</string>
+    <string name="insert_the_link">Insira o Link</string>
+    <string name="download">DOWNLOAD</string>
+    <string name="tracks_included">FAIXAS INCLUIDAS</string>
+    <string name="watch_advertising">ASSISTIR ANUNCIOS</string>
+    <string name="settings">CONFIGURAÇÕES</string>
+    <string name="storage">ARMAZENAMENTO</string>
+    <string name="to_listen_to_your_songs_we_use_the_chache_memory_to_increase_the_storage_volume_just_increase_the_it_according_to_your_need">Para ouvir as suas músicas, utilizamos a memória cache, para aumentar o volume de armazenamento basta aumentar de acordo com a sua necessidade.</string>
+    <string name="note_each_device_has_a_storage_limit">Nota: Cada dispositivo tem um limite de armazenamento.</string>
+    <string name="total_cache_memory_nused_space_niincrease_cache_space">TOTAL CACHE MEMORY: \nUSED SPACE: \nIINCREASE CACHE SPACE:</string>
+    <string name="standard_value_256mb_maximum_value_1024mb">VALOR PADRÃO 256 MB, VALOR MÁXIMO 1.024 MB</string>
+    <string name="sound_equalizer">EQUALIZADOR</string>
+    <string name="language">LINGUAGEM</string>
+    <string name="terms_and_conditions">TERMOS E CONDIÇÕES</string>
+    <string name="track">Faixas</string>
+    <string name="album">Albums</string>
+    <string name="playlist">Playlist</string>
+    <string name="principle">Principal</string>
+    <string name="advertising">ANUNCIOS</string>
+    <string name="exit">SAIR</string>
+    <string name="my_sound">MEU SOM</string>
+    <string name="name_of_artist">NOME DO ARTISTA</string>
+    <string name="name_of_music">NOME DA MÚSICA</string>
+    <string name="not_downloaded">ERRO AO BAIXAR</string>
+    <string name="queue">FILA</string>
+    <string name="playlist_details">DETALHES PLAYLIST</string>
+    <string name="playlist_name">NOME DA PLAYLIST</string>
+    <string name="songs_included">FAIXAS INCLUIDAS</string>
+    <string name="fb_interstitial_id">IMG_16_9_APP_INSTALL#YOUR_PLACEMENT_ID</string>
+    <string name="fb_banner_id">IMG_16_9_APP_INSTALL#YOUR_PLACEMENT_ID</string>
+    <string name="admob_app_id">ca-app-pub-3940256099942544~3347511713</string>
+    <string name="admob_interstitial_id">ca-app-pub-3940256099942544/1033173712</string>
+    <string name="admob_banner_id">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="sign_out">SAIR</string>
+    <string name="by_continuing_you_agree_to_our_terms_and_conditions">Ao continuar, você concorda com nossos termos e condições.</string>
+
+
+</resources>

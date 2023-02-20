@@ -7,6 +7,7 @@ import static com.bumptech.glide.load.engine.DiskCacheStrategy.DATA;
 import static com.moutamid.meusom.R.color.darkerGrey;
 import static com.moutamid.meusom.R.color.darkgray;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -15,6 +16,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,11 +41,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.fxn.stash.Stash;
 import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.moutamid.meusom.VideoPlayerActivity;
+import com.moutamid.meusom.models.SongIDModel;
 import com.moutamid.meusom.utilis.Constants;
 import com.moutamid.meusom.R;
 import com.moutamid.meusom.utilis.Utils;
@@ -52,6 +56,10 @@ import com.moutamid.meusom.models.SongModel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+
+import at.huber.youtubeExtractor.VideoMeta;
+import at.huber.youtubeExtractor.YouTubeExtractor;
+import at.huber.youtubeExtractor.YtFile;
 
 public class VideoListFragment extends Fragment {
     private Utils utils = new Utils();
@@ -62,6 +70,7 @@ public class VideoListFragment extends Fragment {
     private ArrayList<SongModel> songModelArrayListAll = new ArrayList<>();
     private RecyclerViewAdapterMessages adapter;
     private View view;
+    ProgressDialog progressDialog;
 
     @Nullable
     @Override
@@ -70,10 +79,14 @@ public class VideoListFragment extends Fragment {
         Context context = getActivity();
 
         if (utils.getStoredString(context, Constants.LANGUAGE).equals(Constants.ENGLISH)) {
-            utils.changeLanguage(context,"en");
+            utils.changeLanguage(context, "en");
         } else if (utils.getStoredString(context, Constants.LANGUAGE).equals(Constants.PORTUGUESE)) {
-            utils.changeLanguage(context,"pr");
+            utils.changeLanguage(context, "pr");
         }
+
+        progressDialog = new ProgressDialog(requireContext());
+        progressDialog.setCancelable(false);
+        progressDialog.setMessage("Please Wait...");
 
         view = inflater.inflate(R.layout.videolist_fragment, container, false);
 
@@ -162,6 +175,7 @@ public class VideoListFragment extends Fragment {
     }*/
 
     private void initRecyclerView(View view) {
+        progressDialog.show();
 
         conversationRecyclerView = view.findViewById(R.id.tracksRecyclerView);
 //        conversationRecyclerView.addItemDecoration(new DividerItemDecoration(conversationRecyclerView.getContext(), DividerItemDecoration.VERTICAL));
@@ -175,60 +189,27 @@ public class VideoListFragment extends Fragment {
 //        conversationRecyclerView.setNestedScrollingEnabled(false);
         conversationRecyclerView.setItemViewCacheSize(20);
 
-        new LoadData().execute();
-
-
+        LoadData();
     }
 
-
-    private class LoadData extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... voids) {
-            Constants.databaseReference().child(Constants.SONGS)
-                    .child(Constants.auth().getCurrentUser().getUid())
-                    .addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            if (!snapshot.exists()) {
-                                return;
-                            }
-
-                            songModelArrayList.clear();
-                            songModelArrayListAll.clear();
-
-                            for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-
-                                SongModel songModel1 = dataSnapshot.getValue(SongModel.class);
-
-                                if (utils.videoExists(songModel1.getSongName())) {
-
-                                    songModel1.setSongPushKey(dataSnapshot.getKey());
-                                    songModelArrayList.add(songModel1);
-                                    songModelArrayListAll.add(songModel1);
-                                }
-                            }
-
-                            sortTheList();
-
-                            requireActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    adapter = new RecyclerViewAdapterMessages();
-                                    conversationRecyclerView.setAdapter(adapter);
-                                }
-                            });
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-//                            Toast.makeText(getActivity(), error.toException().getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
-
-            return null;
+    private void LoadData() {
+        ArrayList<SongModel> list = Stash.getArrayList(Constants.OFF_DATA, SongModel.class);
+        songModelArrayList.clear();
+        songModelArrayListAll.clear();
+        for (SongModel model : list) {
+            if (utils.videoExists(model.getSongName())) {
+                songModelArrayList.add(model);
+                songModelArrayListAll.add(model);
+            }
         }
+        sortTheList();
+        adapter = new RecyclerViewAdapterMessages();
+        conversationRecyclerView.setAdapter(adapter);
+
+        progressDialog.dismiss();
 
     }
+
 
     private void sortTheList() {
         String sortType = utils.getStoredString(requireContext(), Constants.SORT);

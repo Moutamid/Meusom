@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,6 +25,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.downloader.Error;
 import com.downloader.OnDownloadListener;
 import com.downloader.PRDownloader;
+import com.fxn.stash.Stash;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.moutamid.meusom.CommandExampleActivity;
 import com.moutamid.meusom.R;
@@ -33,6 +35,8 @@ import com.moutamid.meusom.utilis.Utils;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.DownloadVH> {
 
@@ -70,6 +74,14 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
             holder.type.setText("MP3");
         }
 
+        holder.cancel.setOnClickListener(v -> {
+            PRDownloader.cancel(holder.item);
+            holder.progress.setVisibility(View.GONE);
+            holder.cancel.setVisibility(View.GONE);
+            holder.downloadButton.setVisibility(View.VISIBLE);
+            holder.downloadStatus.setText("Canceled");
+        });
+
         holder.downloadButton.setOnClickListener(v -> {
             File file = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS + "/Meusom./");
 
@@ -83,11 +95,12 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
 
             String downloadUrl = model.getType().equals("video") ? model.getSongVideoURL() : model.getSongYTUrl();
 
-            PRDownloader.download(downloadUrl, file.getPath(), d)
+            holder.item = PRDownloader.download(downloadUrl, file.getPath(), d)
                     .build()
                     .setOnStartOrResumeListener(() -> {
                         holder.progress.setVisibility(View.VISIBLE);
                         holder.downloadButton.setVisibility(View.GONE);
+                        holder.cancel.setVisibility(View.VISIBLE);
                     })
                     .setOnPauseListener(() -> {
 
@@ -103,19 +116,29 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
                     .start(new OnDownloadListener() {
                         @Override
                         public void onDownloadComplete() {
-                            holder.progress.setVisibility(View.GONE);
-                            holder.downloadStatus.setText("Completed");
-                            Toast.makeText(context, "Done", Toast.LENGTH_SHORT).show();
-                            Constants.databaseReference().child(Constants.SONGS)
-                                    .child(Constants.auth().getCurrentUser().getUid()).push()
-                                    .setValue(model).addOnCompleteListener(task -> {
-                                        //                    Toast.makeText(context, "Added to database", Toast.LENGTH_SHORT).show();
-                                    });
+                            Map<String, Object> map = new HashMap<>();
+                            map.put("songYTUrl", model.getId());
+                            if (Constants.auth().getCurrentUser()!=null){
+                                Constants.databaseReference().child(Constants.SONGS)
+                                        .child(Constants.auth().getCurrentUser().getUid()).push()
+                                        .setValue(map).addOnCompleteListener(task -> {
+                                            holder.progress.setVisibility(View.GONE);
+                                            holder.cancel.setVisibility(View.GONE);
+                                            holder.downloadStatus.setText("Completed");
+                                            
+                                            ArrayList<SongModel> songModelArrayList = Stash.getArrayList(Constants.OFF_DATA, SongModel.class);
+                                            songModelArrayList.add(model);
+                                            Stash.put(Constants.OFF_DATA, songModelArrayList);
+
+                                            Toast.makeText(context, "Done", Toast.LENGTH_SHORT).show();
+                                        });
+                            }
                         }
 
                         @Override
                         public void onError(Error error) {
                             holder.progress.setVisibility(View.GONE);
+                            holder.cancel.setVisibility(View.GONE);
                             holder.downloadButton.setVisibility(View.VISIBLE);
                             if (error.isServerError()) {
                                 Log.d("VideoSError", "Server : " + error.getServerErrorMessage());
@@ -170,13 +193,14 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
                                             .child(Constants.auth().getCurrentUser().getUid())
                                             .child(model.getSongPushKey())
                                             .removeValue();
+                                    list.remove(model);
+                                    notifyItemRemoved(list.indexOf(model));
                                     dialogInterface1.dismiss();
                                 }, (dialogInterface12, i12) -> {
                                     Constants.databaseReference().child(Constants.SONGS)
                                             .child(Constants.auth().getCurrentUser().getUid())
                                             .child(model.getSongPushKey())
                                             .removeValue();
-
                                     if (model.getType().equals("video")) {
                                         File fdelete = new File(utils.getVideoPath(model.getSongName()));
                                         if (fdelete.exists()) {
@@ -192,16 +216,12 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
                                             }
                                         }
                                     }
-
+                                    list.remove(model);
+                                    notifyItemRemoved(list.indexOf(model));
                                     dialogInterface12.dismiss();
                                 }, true);
                     }
-                }, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                }, true);
+                }, (dialogInterface, i) -> dialogInterface.dismiss(), true);
     }
 
     @Override
@@ -213,6 +233,8 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
         ImageView downloadButton, songCoverImage, deleteBtn;
         TextView songName, songAlbumName, downloadStatus, type;
         CircularProgressIndicator progress;
+        Button cancel;
+        int item;
 
         public DownloadVH(@NonNull View v) {
             super(v);
@@ -224,6 +246,7 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
             deleteBtn = v.findViewById(R.id.deleteBtnCommand);
             type = v.findViewById(R.id.type);
             progress = v.findViewById(R.id.progress);
+            cancel = v.findViewById(R.id.cancel);
         }
     }
 

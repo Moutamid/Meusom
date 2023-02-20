@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    android:orientation="vertical"
+    android:gravity="center"
+    tools:context=".WaitingActivity">
+
+    <androidx.core.widget.ContentLoadingProgressBar
+        android:layout_width="40sp"
+        android:layout_height="40sp"
+        android:progressTint="@color/red" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:textColor="@color/white"
+        android:gravity="center"
+        android:padding="12sp"
+        android:textSize="18sp"
+        android:layout_height="wrap_content"
+        android:text="Please Wait" />
+
+</LinearLayout>

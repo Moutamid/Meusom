@@ -4,6 +4,7 @@ import android.app.Application;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.fxn.stash.Stash;
 import com.google.firebase.database.FirebaseDatabase;
 
 import io.reactivex.Completable;
@@ -18,6 +19,7 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        Stash.init(this);
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 //        PRDownloader.initialize(getApplicationContext());
 
