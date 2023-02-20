@@ -271,14 +271,15 @@ public class TracksFragment extends Fragment {
                 public void onClick(View view) {
                     utils.storeBoolean(getActivity(), Constants.IS_PLAYLIST, false);
 
-                    Intent intent = getActivity().getIntent();
-//                    intent.putExtra(Constants.SONG_INDEX, position);
-//                    intent.putExtra(Constants.SONG_NAME, model.getSongName());
-//                    intent.putExtra(Constants.SONG_ALBUM_NAME, model.getSongAlbumName());
-//                    intent.putExtra(Constants.SONG_COVER_URL, model.getSongCoverUrl());
-//                    intent.putExtra(Constants.YT_URL, model.getSongYTUrl());
-                    intent.putExtra(Constants.PUSH_KEY, model.getSongPushKey());
-                    getActivity().setResult(RESULT_OK, intent);
+//                    Intent intent = getActivity().getIntent();
+////                    intent.putExtra(Constants.SONG_INDEX, position);
+////                    intent.putExtra(Constants.SONG_NAME, model.getSongName());
+////                    intent.putExtra(Constants.SONG_ALBUM_NAME, model.getSongAlbumName());
+////                    intent.putExtra(Constants.SONG_COVER_URL, model.getSongCoverUrl());
+////                    intent.putExtra(Constants.YT_URL, model.getSongYTUrl());
+//                    intent.putExtra(Constants.PUSH_KEY, model.getSongName());
+//                    getActivity().setResult(RESULT_OK, intent);
+                    Stash.put(Constants.PUSH_KEY, model.getSongName());
                     getActivity().finish();
 
                 }

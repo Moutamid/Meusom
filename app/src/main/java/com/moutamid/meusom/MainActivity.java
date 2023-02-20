@@ -619,6 +619,15 @@ public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCo
                 }
             }
             firstTime = false;
+        } else {
+            for (int i = 0; i <= songsList.size() - 1; i++) {
+                if (songsList.get(i).getSongName().equals(Stash.getString(Constants.PUSH_KEY))) {
+                    currentSongIndex = i;
+                    break;
+                }
+            }
+
+            playSong(currentSongIndex);
         }
     }
 
@@ -627,6 +636,7 @@ public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCo
      * Receiving song index from playlist view
      * and play the song
      */
+    /*
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -640,42 +650,25 @@ public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCo
 //            model.setSongCoverUrl(data.getStringExtra(Constants.SONG_COVER_URL));
 //            model.setSongYTUrl(data.getStringExtra(Constants.YT_URL));
 
-            for (int i = 0; i <= songsList.size() - 1; i++) {
-                if (songsList.get(i).getSongPushKey().equals(data.getStringExtra(Constants.PUSH_KEY))) {
-                    currentSongIndex = i;
-                    break;
-                }
-            }
 
-            playSong(currentSongIndex);
         }
 
-    }
+    }*/
 
 
     @Override
     protected void onResume() {
         super.onResume();
+        getSongsList();
 
-        if (utils.getStoredBoolean(context, Constants.IS_PLAYLIST)) {
+
+
+        /*if (utils.getStoredBoolean(context, Constants.IS_PLAYLIST)) {
             String playListName = utils.getStoredString(context, Constants.NAME);
             getPlaylist(playListName);
         } else {
-            getSongsList();
-        }
-    }
 
-    private void getPlaylist(String playListName) {
-//        Toast.makeText(context, playListName, Toast.LENGTH_SHORT).show();
-        ArrayList<SongModel> list = Stash.getArrayList(Constants.OFF_DATA, SongModel.class);
-        songsList.clear();
-        songsListAll.clear();
-        for(SongModel model: list) {
-            if (utils.fileExists(model.getSongName())) {
-                songsList.add(model);
-                songsListAll.add(model);
-            }
-        }
+        }*/
     }
 
 
