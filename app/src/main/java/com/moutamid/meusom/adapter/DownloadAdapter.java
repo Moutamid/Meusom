@@ -144,12 +144,14 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
                             holder.progress.setVisibility(View.GONE);
                             holder.cancel.setVisibility(View.GONE);
                             holder.downloadButton.setVisibility(View.VISIBLE);
+                            holder.downloadStatus.setText("Something went wrong");
                             if (error.isServerError()) {
                                 Log.d("VideoSError", "Server : " + error.getServerErrorMessage());
                                 Toast.makeText(context, "Server Error: " + error.getServerErrorMessage(), Toast.LENGTH_SHORT).show();
                             } else if (error.isConnectionError()) {
                                 Log.d("VideoSError", "Connection : " + error.getConnectionException().getMessage());
                                 Log.d("VideoSError", "Connection : " + model.getType());
+                                Log.d("VideoSError", "Connection : " + model.getSongName());
                                 Log.d("VideoSError", "Connection : " + model.getSongVideoURL());
                                 Log.d("VideoSError", "Connection : " + model.getId());
                                 Toast.makeText(context, "Connection Error: " + error.getConnectionException().getMessage(), Toast.LENGTH_SHORT).show();
@@ -196,18 +198,18 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
                                 "Delete file",
                                 "Delete(File+Data)",
                                 (dialogInterface1, i1) -> {
-                                    Constants.databaseReference().child(Constants.SONGS)
+                                    /*Constants.databaseReference().child(Constants.SONGS)
                                             .child(Constants.auth().getCurrentUser().getUid())
                                             .child(model.getSongPushKey())
-                                            .removeValue();
+                                            .removeValue();*/
                                     list.remove(model);
                                     notifyItemRemoved(list.indexOf(model));
                                     dialogInterface1.dismiss();
                                 }, (dialogInterface12, i12) -> {
-                                    Constants.databaseReference().child(Constants.SONGS)
+                                    /*Constants.databaseReference().child(Constants.SONGS)
                                             .child(Constants.auth().getCurrentUser().getUid())
                                             .child(model.getSongPushKey())
-                                            .removeValue();
+                                            .removeValue();*/
                                     if (model.getType().equals("video")) {
                                         File fdelete = new File(utils.getVideoPath(model.getSongName()));
                                         if (fdelete.exists()) {

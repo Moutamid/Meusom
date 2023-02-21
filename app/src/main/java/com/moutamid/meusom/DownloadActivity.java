@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.widget.EditText;
@@ -32,6 +33,7 @@ public class DownloadActivity extends AppCompatActivity {
     private boolean isIntent = false;
     public ProgressDialog progressDialog;
     String url;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,22 +104,22 @@ public class DownloadActivity extends AppCompatActivity {
                     try {
                         for (int vtag : Constants.video_iTag) {
                             if (ytFiles.get(vtag) != null) {
-                                if (ytFiles.get(vtag).getFormat().getExt().equals("webm") || ytFiles.get(vtag).getFormat().getExt().equals("mp4")) {
-                                    downloadUrl = ytFiles.get(vtag).getUrl();
-                                }
+                                downloadUrl = ytFiles.get(vtag).getUrl();
+                                Log.d("VideoSError", "vTag " + vtag);
+                                break;
                             }
                         }
                         for (int atag : Constants.audio_iTag) {
                             if (ytFiles.get(atag) != null) {
-                                if (ytFiles.get(atag).getFormat().getExt().equals("webm") || ytFiles.get(atag).getFormat().getExt().equals("m4a")) {
-                                    audioURL = ytFiles.get(atag).getUrl();
-                                }
+                                audioURL = ytFiles.get(atag).getUrl();
+                                Log.d("VideoSError", "aTag " + atag);
+                                break;
                             }
                         }
 
                         String d = vMeta.getTitle();
-                        for (String s : Constants.special){
-                            if (d.contains(s)){
+                        for (String s : Constants.special) {
+                            if (d.contains(s)) {
                                 d = d.replace(s, "");
                             }
                         }
@@ -126,7 +128,7 @@ public class DownloadActivity extends AppCompatActivity {
 
                         boolean check = utils.fileExists(d) || utils.videoExists(d);
 
-                        if (check){
+                        if (check) {
                             Toast.makeText(context, "Already Downloaded", Toast.LENGTH_SHORT).show();
                         } else {
                             Intent intent = new Intent(DownloadActivity.this, CommandExampleActivity.class);
@@ -140,7 +142,7 @@ public class DownloadActivity extends AppCompatActivity {
                             startActivity(intent);
                         }
 
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                         Toast.makeText(context, "Video link is not valid", Toast.LENGTH_SHORT).show();
                     }

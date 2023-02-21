@@ -75,16 +75,14 @@ public class WaitingActivity extends AppCompatActivity {
                         try {
                             for (int vtag : Constants.video_iTag) {
                                 if (ytFiles.get(vtag) != null) {
-                                    if (ytFiles.get(vtag).getFormat().getExt().equals("webm") || ytFiles.get(vtag).getFormat().getExt().equals("mp4")) {
-                                        downloadUrl = ytFiles.get(vtag).getUrl();
-                                    }
+                                    downloadUrl = ytFiles.get(vtag).getUrl();
+                                    break;
                                 }
                             }
                             for (int atag : Constants.audio_iTag) {
                                 if (ytFiles.get(atag) != null) {
-                                    if (ytFiles.get(atag).getFormat().getExt().equals("webm") || ytFiles.get(atag).getFormat().getExt().equals("m4a")) {
-                                        audioURL = ytFiles.get(atag).getUrl();
-                                    }
+                                    audioURL = ytFiles.get(atag).getUrl();
+                                    break;
                                 }
                             }
 

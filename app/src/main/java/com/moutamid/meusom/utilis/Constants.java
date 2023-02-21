@@ -23,8 +23,8 @@ import java.util.regex.Pattern;
 
 public class Constants {
 
-    public static final int[] audio_iTag = {5, 6, 34, 35, 139, 140, 141, 171, 249, 250, 251};
-    public static final int[] video_iTag = {18, 22, 133, 134, 135, 136, 137, 160, 167, 168, 169};
+    public static final int[] audio_iTag = {141,140,171,251,250,249,139,37,6,5};
+    public static final int[] video_iTag = {22,84,45,83,44,18,82,43,6,5};
     public static final String[] special = {"$","%","^","&", "*","|", ":", "\"", "\'", ";", "@", "#", "!", "~", "`", "?", "+", "=", "/", "\\", ".", ","};
     public static final String URL = "url";
     public static final String SONG_NAME = "songName";
