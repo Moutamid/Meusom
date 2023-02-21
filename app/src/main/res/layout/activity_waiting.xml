@@ -9,10 +9,10 @@
     android:gravity="center"
     tools:context=".WaitingActivity">
 
-    <androidx.core.widget.ContentLoadingProgressBar
+    <ProgressBar
         android:layout_width="40sp"
-        android:layout_height="40sp"
-        android:progressTint="@color/red" />
+        android:layout_height="40sp"/>
+
 
     <TextView
         android:id="@+id/textView"

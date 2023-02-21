@@ -18,6 +18,8 @@ import com.moutamid.meusom.models.SongModel;
 import com.moutamid.meusom.utilis.Constants;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import at.huber.youtubeExtractor.VideoMeta;
 import at.huber.youtubeExtractor.YouTubeExtractor;
@@ -25,32 +27,32 @@ import at.huber.youtubeExtractor.YtFile;
 
 public class WaitingActivity extends AppCompatActivity {
     private ArrayList<SongModel> songModelArrayList = new ArrayList<>();
+    private ArrayList<Model> list = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_waiting);
 
+        Stash.clear(Constants.OFF_DATA);
+
         Constants.databaseReference().child(Constants.SONGS)
                 .child(Constants.auth().getCurrentUser().getUid())
                 .get().addOnSuccessListener(dataSnapshot -> {
-                   if (dataSnapshot.exists()){
-                       songModelArrayList.clear();
-                       for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                           SongIDModel songModel1 = snapshot.getValue(SongIDModel.class);
-                           if (songModel1!=null){
-                               getData(songModel1, snapshot.getKey());
-                           }
-                       }
-                       Intent intent = new Intent(WaitingActivity.this, MainActivity.class);
-                       intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                       startActivity(intent);
-                       finish();
-                   } else {
-                       Intent intent = new Intent(WaitingActivity.this, MainActivity.class);
-                       intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                       startActivity(intent);
-                       finish();
-                   }
+                    if (dataSnapshot.exists()) {
+                        songModelArrayList.clear();
+                        list.clear();
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                            SongIDModel songModel1 = snapshot.getValue(SongIDModel.class);
+                            if (songModel1 != null) {
+                                Model model = new Model();
+                                model.id = songModel1.getSongYTUrl();
+                                model.key = snapshot.getKey();
+                                list.add(model);
+                            }
+                        }
+                        getData();
+                    }
                 }).addOnFailureListener(e -> {
                     Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
@@ -58,55 +60,86 @@ public class WaitingActivity extends AppCompatActivity {
     }
 
     @SuppressLint("StaticFieldLeak")
-    private void getData(SongIDModel songModel1, String key) {
-        String link = "https://www.youtube.com/watch?v=" + songModel1.getSongYTUrl();
-        Log.d("videoID", songModel1.getSongYTUrl());
-        Log.d("videoID", link);
-        new YouTubeExtractor(this) {
-            @Override
-            public void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta vMeta) {
-                if (ytFiles != null) {
-                    String downloadUrl = "";
-                    String audioURL = "";
-                    try {
-                        int vtag = 22;
-                        int atag = 140;
-                        downloadUrl = ytFiles.get(vtag).getUrl();
-                        audioURL = ytFiles.get(atag).getUrl();
-
-                        String d = vMeta.getTitle();
-                        for (String s : Constants.special){
-                            if (d.contains(s)){
-                                d = d.replace(s, "");
+    private void getData() {
+        for (int i = 0; i < list.size(); i++) {
+            String link = "https://www.youtube.com/watch?v=" + list.get(i).id;
+            int finalI = i;
+            Log.d("LOGINOFF", "loop : " + i);
+            Log.d("LOGINOFF", "finalI 1  : " + finalI);
+            new YouTubeExtractor(this) {
+                @Override
+                public void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta vMeta) {
+                    if (ytFiles != null) {
+                        String downloadUrl = "";
+                        String audioURL = "";
+                        try {
+                            for (int vtag : Constants.video_iTag) {
+                                if (ytFiles.get(vtag) != null) {
+                                    if (ytFiles.get(vtag).getFormat().getExt().equals("webm") || ytFiles.get(vtag).getFormat().getExt().equals("mp4")) {
+                                        downloadUrl = ytFiles.get(vtag).getUrl();
+                                    }
+                                }
                             }
+                            for (int atag : Constants.audio_iTag) {
+                                if (ytFiles.get(atag) != null) {
+                                    if (ytFiles.get(atag).getFormat().getExt().equals("webm") || ytFiles.get(atag).getFormat().getExt().equals("m4a")) {
+                                        audioURL = ytFiles.get(atag).getUrl();
+                                    }
+                                }
+                            }
+
+                            String d = vMeta.getTitle();
+                            for (String s : Constants.special) {
+                                if (d.contains(s)) {
+                                    d = d.replace(s, "");
+                                }
+                            }
+
+                            Log.d("LOGINOFF", "finalI 2  : " + finalI);
+                            SongModel model = new SongModel();
+                            model.setId(list.get(finalI).id);
+                            model.setSongYTUrl(audioURL);
+                            model.setSongName(d);
+
+                            model.setType(Stash.getString(list.get(finalI).id));
+
+                            model.setSongAlbumName(vMeta.getAuthor());
+
+                            String coverUrl = vMeta.getHqImageUrl();
+                            coverUrl = coverUrl.replace("http", "https");
+                            model.setSongCoverUrl(coverUrl);
+
+                            model.setSongVideoURL(downloadUrl);
+                            model.setSongPushKey(list.get(finalI).key);
+
+                            songModelArrayList.add(model);
+
+                            Stash.put(Constants.OFF_DATA, songModelArrayList);
+
+                            if (finalI == list.size() - 1) {
+                                Log.d("LOGINOFF", "iNTENT");
+                                Intent intent = new Intent(WaitingActivity.this, MainActivity.class);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                startActivity(intent);
+                                finish();
+                            }
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            //Toast.makeText(WaitingActivity.this, "Video link is not valid", Toast.LENGTH_SHORT).show();
                         }
-
-                        SongModel model = new SongModel();
-                        model.setId(songModel1.getSongYTUrl());
-                        model.setSongYTUrl(audioURL);
-                        model.setSongName(d);
-
-                        model.setType(Stash.getString(songModel1.getSongYTUrl()));
-
-                        model.setSongAlbumName(vMeta.getAuthor());
-
-                        String coverUrl = vMeta.getHqImageUrl();
-                        coverUrl = coverUrl.replace("http", "https");
-                        model.setSongCoverUrl(coverUrl);
-
-                        model.setSongVideoURL(downloadUrl);
-                        model.setSongPushKey(key);
-
-                        songModelArrayList.add(model);
-
-                        Stash.put(Constants.OFF_DATA, songModelArrayList);
-
-                    } catch (Exception e){
-                        e.printStackTrace();
-                        //Toast.makeText(WaitingActivity.this, "Video link is not valid", Toast.LENGTH_SHORT).show();
                     }
                 }
-            }
-        }.extract(link);
+            }.extract(link);
+
+        }
     }
+
+    class Model {
+        String id, key;
+
+        public Model() {
+        }
+    }
+
 }

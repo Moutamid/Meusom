@@ -6,17 +6,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 
-import com.android.iplayer.controller.VideoController;
-import com.android.iplayer.interfaces.IVideoController;
-import com.android.iplayer.widget.VideoPlayer;
-import com.android.iplayer.widget.WidgetFactory;
-import com.android.iplayer.widget.controls.ControWindowView;
-import com.android.iplayer.widget.controls.ControlCompletionView;
-import com.android.iplayer.widget.controls.ControlFunctionBarView;
-import com.android.iplayer.widget.controls.ControlGestureView;
-import com.android.iplayer.widget.controls.ControlLoadingView;
-import com.android.iplayer.widget.controls.ControlStatusView;
-import com.android.iplayer.widget.controls.ControlToolBarView;
 import com.moutamid.meusom.utilis.Utils;
 
 import java.io.File;
@@ -25,19 +14,19 @@ public class VideoPlayerActivity extends AppCompatActivity {
     int currentIDX;
     String name;
     private Utils utils = new Utils();
-    VideoPlayer videoPlayer;
+  //  VideoPlayer videoPlayer;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_player);
-        videoPlayer = findViewById(R.id.video_player);
+       // videoPlayer = findViewById(R.id.video_player);
 
         currentIDX = getIntent().getIntExtra("currentIDX", 0);
         name = getIntent().getStringExtra("name");
 
-        videoPlayer.setAutoChangeOrientation(true);
+        //videoPlayer.setAutoChangeOrientation(true);
 
-        VideoController controller = new VideoController(videoPlayer.getContext());
+        /*VideoController controller = new VideoController(videoPlayer.getContext());
         videoPlayer.setController(controller);
         WidgetFactory.bindDefaultControls(controller);
         controller.setTitle(name);
@@ -88,28 +77,28 @@ public class VideoPlayerActivity extends AppCompatActivity {
         Log.d("VideoURLPlayer", ""+file.getPath());
         videoPlayer.setDataSource(file.getPath());
         // binding.videoPlayer.setDataSource("https://upload.dongfeng-nissan.com.cn/nissan/video/202204/4cfde6f0-bf80-11ec-95c3-214c38efbbc8.mp4");
-        videoPlayer.prepareAsync();
+        videoPlayer.prepareAsync();*/
 
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        videoPlayer.onResume();
+        //videoPlayer.onResume();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        videoPlayer.onPause();
+      //  videoPlayer.onPause();
     }
 
     @Override
     public void onBackPressed() {
-        if(videoPlayer.isBackPressed()){
+        /*if(videoPlayer.isBackPressed()){
 //            startActivity(new Intent(VideoPlayerActivity.this, MainActivity.class));
             finish();
-        }
+        }*/
 //        startActivity(new Intent(VideoPlayerActivity.this, MainActivity.class));
         finish();
     }
@@ -117,6 +106,6 @@ public class VideoPlayerActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        videoPlayer.onDestroy();
+       // videoPlayer.onDestroy();
     }
 }

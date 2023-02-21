@@ -3,6 +3,7 @@ package com.moutamid.meusom.utilis;
 import android.app.Activity;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -17,8 +18,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Constants {
+
+    public static final int[] audio_iTag = {5, 6, 34, 35, 139, 140, 141, 171, 249, 250, 251};
+    public static final int[] video_iTag = {18, 22, 133, 134, 135, 136, 137, 160, 167, 168, 169};
     public static final String[] special = {"$","%","^","&", "*","|", ":", "\"", "\'", ";", "@", "#", "!", "~", "`", "?", "+", "=", "/", "\\", ".", ","};
     public static final String URL = "url";
     public static final String SONG_NAME = "songName";
@@ -124,4 +130,15 @@ public class Constants {
         db.keepSynced(true);
         return db;
     }
+    public static String getVideoId(@NonNull String videoUrl) {
+        String videoId = "";
+        String regex = "http(?:s)?:\\/\\/(?:m.)?(?:www\\.)?youtu(?:\\.be\\/|be\\.com\\/(?:watch\\?(?:feature=youtu.be\\&)?v=|v\\/|embed\\/|user\\/(?:[\\w#]+\\/)+))([^&#?\\n]+)";
+        Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(videoUrl);
+        if (matcher.find()) {
+            videoId = matcher.group(1);
+        }
+        return videoId;
+    }
+
 }

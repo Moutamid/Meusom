@@ -12,6 +12,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
@@ -266,9 +267,9 @@ public class VideoListFragment extends Fragment {
             holder.parentLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent i = new Intent(requireContext(), VideoPlayerActivity.class);
-                    i.putExtra("name", model.getSongName());
-                    startActivity(i);
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setDataAndType(Uri.parse(utils.getVideoPath(model.getSongName())), "video/*");
+                    startActivity(Intent.createChooser(intent, "Complete action using"));
 
                 }
             });

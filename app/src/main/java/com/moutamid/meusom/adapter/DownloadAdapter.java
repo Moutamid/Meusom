@@ -61,6 +61,10 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
         SongModel model = list.get(position);
 
         Log.i("TAG", "onBindViewHolder: getSongYTUrl: " + model.getSongYTUrl());
+        Log.d("VideoSError", "getSongYTUrl : " + model.getType());
+        Log.d("VideoSError", "getSongYTUrl : " + model.getSongVideoURL());
+        Log.d("VideoSError", "getSongYTUrl : " + model.getId());
+        Log.d("VideoSError", "getSongYTUrl : " + model.getSongName() + "\n\n");
 
         holder.songName.setText(model.getSongName());
 //            holder.songAlbumName.setText(model.getSongAlbumName());
@@ -145,6 +149,9 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
                                 Toast.makeText(context, "Server Error: " + error.getServerErrorMessage(), Toast.LENGTH_SHORT).show();
                             } else if (error.isConnectionError()) {
                                 Log.d("VideoSError", "Connection : " + error.getConnectionException().getMessage());
+                                Log.d("VideoSError", "Connection : " + model.getType());
+                                Log.d("VideoSError", "Connection : " + model.getSongVideoURL());
+                                Log.d("VideoSError", "Connection : " + model.getId());
                                 Toast.makeText(context, "Connection Error: " + error.getConnectionException().getMessage(), Toast.LENGTH_SHORT).show();
                             } else {
                                 Log.d("VideoSError", "Error : " + error);

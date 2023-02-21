@@ -40,11 +40,6 @@ dependencies {
     implementation "io.reactivex.rxjava2:rxandroid:2.1.0"
     implementation "com.devbrackets.android:exomedia:4.3.0"
 
-    implementation 'com.github.hty527.iPlayer:iplayer:2.1.20'
-    implementation 'com.github.hty527.iPlayer:widget:2.1.20'
-    implementation 'com.github.hty527.iPlayer:cache:2.1.20'
-    implementation 'com.github.hty527.iPlayer:ijk:2.1.20'
-
     // FIREBASE DEPENDENCIES
     implementation platform('com.google.firebase:firebase-bom:27.1.0')
     implementation 'com.google.firebase:firebase-auth'
@@ -65,12 +60,6 @@ dependencies {
     // GLIDE LIBRARY
     implementation 'com.github.bumptech.glide:glide:4.14.2'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.14.2'
-
-// LOTTIE ANIMATIONS
-    implementation 'com.airbnb.android:lottie:5.2.0'
-
-    // Dexter Permission Library
-    implementation 'com.karumi:dexter:6.2.3'
 
     implementation 'com.github.denzcoskun:ImageSlideshow:0.1.0'
 
