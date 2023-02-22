@@ -136,6 +136,7 @@
         android:layout_height="wrap_content"
         android:textSize="16sp"
         android:textColor="@color/white"
+        android:visibility="gone"
         android:backgroundTint="@color/transparentWhite"
         android:layout_marginTop="12sp"
         android:text="Download Audio/Video" />

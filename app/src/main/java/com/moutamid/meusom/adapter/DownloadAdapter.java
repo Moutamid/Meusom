@@ -60,12 +60,6 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
     public void onBindViewHolder(@NonNull DownloadVH holder, int position) {
         SongModel model = list.get(position);
 
-        Log.i("TAG", "onBindViewHolder: getSongYTUrl: " + model.getSongYTUrl());
-        Log.d("VideoSError", "getSongYTUrl : " + model.getType());
-        Log.d("VideoSError", "getSongYTUrl : " + model.getSongVideoURL());
-        Log.d("VideoSError", "getSongYTUrl : " + model.getId());
-        Log.d("VideoSError", "getSongYTUrl : " + model.getSongName() + "\n\n");
-
         holder.songName.setText(model.getSongName());
 //            holder.songAlbumName.setText(model.getSongAlbumName());
         holder.songAlbumName.setVisibility(View.GONE);
@@ -122,13 +116,19 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
                                         .setValue(map).addOnCompleteListener(task -> {
                                             holder.progress.setVisibility(View.GONE);
                                             holder.cancel.setVisibility(View.GONE);
-                                            holder.downloadStatus.setText("Completed");
+                                            if (model.getType().equals("video")) {
+                                                holder.audiovideo.setText("Download Video");
+                                            } else {
+                                                holder.audiovideo.setText("Download Audio");
+                                            }
+                                            holder.audiovideo.setVisibility(View.VISIBLE);
+                                            holder.downloadStatus.setText("Download Complete");
                                             
                                             ArrayList<SongModel> songModelArrayList = Stash.getArrayList(Constants.OFF_DATA, SongModel.class);
                                             songModelArrayList.add(model);
                                             Stash.put(Constants.OFF_DATA, songModelArrayList);
 
-                                            Toast.makeText(context, "Done", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(context, "Download Complete", Toast.LENGTH_SHORT).show();
                                         });
                             }
                         }
@@ -155,6 +155,95 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
                             }
                         }
                     });
+        });
+
+        holder.audiovideo.setOnClickListener(v -> {
+            Log.d("VideoSError", "name : " + model.getSongName());
+            Log.d("VideoSError", "link Audio : " + model.getSongYTUrl());
+            Log.d("VideoSError", "link video : " + model.getSongVideoURL());
+            File file = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS + "/Meusom./");
+
+            String d = model.getSongName();
+
+            if (holder.audiovideo.getText().toString().contains("Video")) {
+                d = d + ".mp4";
+            } else {
+                d = d + ".mp3";
+            }
+
+            String downloadUrl = holder.audiovideo.getText().toString().contains("Video") ? model.getSongVideoURL() : model.getSongYTUrl();
+
+            holder.item = PRDownloader.download(downloadUrl, file.getPath(), d)
+                    .build()
+                    .setOnStartOrResumeListener(() -> {
+                        holder.progress.setVisibility(View.VISIBLE);
+                        holder.downloadButton.setVisibility(View.GONE);
+                       // holder.cancel.setVisibility(View.VISIBLE);
+
+                        holder.audiovideo.setVisibility(View.GONE);
+                    })
+                    .setOnPauseListener(() -> {
+
+                    })
+                    .setOnCancelListener(() -> {
+
+                    })
+                    .setOnProgressListener(progress -> {
+                        long n = progress.currentBytes * 100 / progress.totalBytes;
+                        holder.progress.setProgress((int) n, true);
+                        holder.downloadStatus.setText("Completed : " + n + "%");
+                    })
+                    .start(new OnDownloadListener() {
+                        @Override
+                        public void onDownloadComplete() {
+                            /*Map<String, Object> map = new HashMap<>();
+                            map.put("songYTUrl", model.getId());
+                            if (Constants.auth().getCurrentUser()!=null){
+                                Constants.databaseReference().child(Constants.SONGS)
+                                        .child(Constants.auth().getCurrentUser().getUid()).push()
+                                        .setValue(map).addOnCompleteListener(task -> {
+                                            holder.progress.setVisibility(View.GONE);
+                                            holder.cancel.setVisibility(View.GONE);
+                                            holder.downloadStatus.setText("Completed");
+
+                                            ArrayList<SongModel> songModelArrayList = Stash.getArrayList(Constants.OFF_DATA, SongModel.class);
+                                            songModelArrayList.add(model);
+                                            Stash.put(Constants.OFF_DATA, songModelArrayList);
+
+                                            Toast.makeText(context, "Done", Toast.LENGTH_SHORT).show();
+                                        });
+                            }*/
+                            holder.progress.setVisibility(View.GONE);
+                            holder.cancel.setVisibility(View.GONE);
+                            holder.type.setText("MP4 | MP3");
+                            holder.downloadStatus.setText("Download Complete");
+                            Toast.makeText(context, "Download Complete", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onError(Error error) {
+                            holder.progress.setVisibility(View.GONE);
+                            holder.cancel.setVisibility(View.GONE);
+                            holder.downloadButton.setVisibility(View.GONE);
+                            holder.audiovideo.setVisibility(View.VISIBLE);
+                            holder.downloadStatus.setText("Something went wrong");
+                            if (error.isServerError()) {
+                                Log.d("VideoSError", "Server : " + error.getServerErrorMessage());
+                                Toast.makeText(context, "Server Error: " + error.getServerErrorMessage(), Toast.LENGTH_SHORT).show();
+                            } else if (error.isConnectionError()) {
+                                Log.d("VideoSError", "Connection : " + error.getConnectionException().getMessage());
+                                Log.d("VideoSError", "Connection : " + model.getType());
+                                Log.d("VideoSError", "Connection : " + model.getSongName());
+                                Log.d("VideoSError", "Connection : " + model.getSongVideoURL());
+                                Log.d("VideoSError", "Connection : " + model.getId());
+                                Toast.makeText(context, "Connection Error: " + error.getConnectionException().getMessage(), Toast.LENGTH_SHORT).show();
+                            } else {
+                                Log.d("VideoSError", "Error : " + error);
+                                Toast.makeText(context, "" + error, Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+
         });
 
         if (utils.fileExists(model.getSongName()) && utils.videoExists(model.getSongName())){
