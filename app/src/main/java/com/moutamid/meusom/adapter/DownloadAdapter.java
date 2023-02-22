@@ -72,12 +72,6 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
         //Toast.makeText(context, "img " + model.getSongCoverUrl(), Toast.LENGTH_SHORT).show();
         Glide.with(context).load(model.getSongCoverUrl()).placeholder(R.color.red).into(holder.songCoverImage);
 
-        if (model.getType().equals("video")) {
-            holder.type.setText("MP4");
-        } else {
-            holder.type.setText("MP3");
-        }
-
         holder.cancel.setOnClickListener(v -> {
             PRDownloader.cancel(holder.item);
             holder.progress.setVisibility(View.GONE);
@@ -163,6 +157,19 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
                     });
         });
 
+        if (utils.fileExists(model.getSongName()) && utils.videoExists(model.getSongName())){
+            holder.audiovideo.setVisibility(View.GONE);
+            holder.type.setText("MP4 | MP3");
+        } else if (utils.fileExists(model.getSongName())){
+            holder.audiovideo.setVisibility(View.VISIBLE);
+            holder.audiovideo.setText("Download Video");
+            holder.type.setText("MP3");
+        } else if (utils.videoExists(model.getSongName())){
+            holder.audiovideo.setVisibility(View.VISIBLE);
+            holder.audiovideo.setText("Download Audio");
+            holder.type.setText("MP4");
+        }
+
         if (utils.fileExists(model.getSongName()) || utils.videoExists(model.getSongName())) {
             holder.downloadStatus.setText(Constants.COMPLETED);
             holder.downloadButton.setVisibility(View.GONE);
@@ -170,6 +177,7 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
         } else {
             holder.downloadStatus.setText(Constants.NOT_DOWNLOADED);
             holder.downloadButton.setImageResource(R.drawable.donwloadtrack);
+            holder.downloadButton.setVisibility(View.VISIBLE);
         }
 
         holder.deleteBtn.setOnClickListener(new View.OnClickListener() {
@@ -242,7 +250,7 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
         ImageView downloadButton, songCoverImage, deleteBtn;
         TextView songName, songAlbumName, downloadStatus, type;
         CircularProgressIndicator progress;
-        Button cancel;
+        Button cancel, audiovideo;
         int item;
 
         public DownloadVH(@NonNull View v) {
@@ -256,6 +264,7 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
             type = v.findViewById(R.id.type);
             progress = v.findViewById(R.id.progress);
             cancel = v.findViewById(R.id.cancel);
+            audiovideo = v.findViewById(R.id.audiovideo);
         }
     }
 

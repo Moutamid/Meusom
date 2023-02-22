@@ -129,4 +129,21 @@
         android:layout_marginTop="12sp"
         android:text="Cancel" />
 
+    <Button
+        android:id="@+id/audiovideo"
+        style="@style/Widget.Material3.Button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/transparentWhite"
+        android:layout_marginTop="12sp"
+        android:text="Download Audio/Video" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="12sp"
+        android:background="@color/darkgray" />
+
 </LinearLayout>

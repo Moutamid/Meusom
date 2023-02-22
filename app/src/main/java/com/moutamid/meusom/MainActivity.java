@@ -19,6 +19,7 @@ import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.audiofx.AudioEffect;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -129,13 +130,16 @@ public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCo
 
         playVideo.setOnClickListener(v -> {
             String name = songsList.get(currentSongIndex).getSongName();
-            Intent i = new Intent(MainActivity.this, VideoPlayerActivity.class);
-            i.putExtra("name", name);
-            i.putExtra("currentIDX", currentSongIndex);
-            if (mp.isPlaying()){
-                mp.pause();
+            if (utils.videoExists(name)){
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setDataAndType(Uri.parse(utils.getVideoPath(name)), "video/*");
+                startActivity(Intent.createChooser(intent, "Complete action using"));
+                if (mp.isPlaying()){
+                    mp.pause();
+                }
+            } else {
+                Toast.makeText(context, "No video found related to this music", Toast.LENGTH_SHORT).show();
             }
-            startActivity(i);
         });
 
         // Mediaplayer
