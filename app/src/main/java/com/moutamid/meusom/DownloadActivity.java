@@ -63,7 +63,7 @@ public class DownloadActivity extends AppCompatActivity {
         findViewById(R.id.backBtnDownload).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finish();
+                onBackPressed();
             }
         });
 
@@ -151,5 +151,10 @@ public class DownloadActivity extends AppCompatActivity {
             }
         }.extract(videoLink);
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
     }
 }
