@@ -141,12 +141,14 @@ public class YourService  extends Service {
                             Map<String, Object> map = new HashMap<>();
                             map.put("songYTUrl", YourService.this.ID);
                             if (Constants.auth().getCurrentUser()!=null){
+                                String pushkey = Constants.databaseReference().child(Constants.SONGS)
+                                        .child(Constants.auth().getCurrentUser().getUid()).push().getKey();
                                 Constants.databaseReference().child(Constants.SONGS)
-                                        .child(Constants.auth().getCurrentUser().getUid()).push()
+                                        .child(Constants.auth().getCurrentUser().getUid()).child(pushkey)
                                         .setValue(map).addOnCompleteListener(task -> {
                                             completed++;
                                             helper.sendDownloadingNotification(songName, "Download Completed!");
-
+                                            model.setSongPushKey(pushkey);
                                             ArrayList<SongModel> songModelArrayList = Stash.getArrayList(Constants.OFF_DATA, SongModel.class);
                                             songModelArrayList.add(model);
                                             Stash.put(Constants.OFF_DATA, songModelArrayList);

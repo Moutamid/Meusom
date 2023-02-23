@@ -1,13 +1,9 @@
 package com.moutamid.meusom.adapter;
 
 import static com.bumptech.glide.Glide.with;
-import static com.bumptech.glide.load.engine.DiskCacheStrategy.DATA;
-import static com.moutamid.meusom.R.color.darkerGrey;
-import static com.moutamid.meusom.R.color.darkgray;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Environment;
@@ -26,13 +22,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.downloader.Error;
 import com.downloader.OnDownloadListener;
 import com.downloader.PRDownloader;
 import com.fxn.stash.Stash;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
-import com.moutamid.meusom.CommandExampleActivity;
 import com.moutamid.meusom.R;
 import com.moutamid.meusom.models.SongModel;
 import com.moutamid.meusom.utilis.Constants;
@@ -115,7 +109,7 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
                         public void onDownloadComplete() {
                             Map<String, Object> map = new HashMap<>();
                             map.put("songYTUrl", model.getId());
-                            if (Constants.auth().getCurrentUser()!=null){
+                            if (Constants.auth().getCurrentUser() != null) {
                                 Constants.databaseReference().child(Constants.SONGS)
                                         .child(Constants.auth().getCurrentUser().getUid()).push()
                                         .setValue(map).addOnCompleteListener(task -> {
@@ -128,7 +122,7 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
                                             }
                                             holder.audiovideo.setVisibility(View.VISIBLE);
                                             holder.downloadStatus.setText("Download Complete");
-                                            
+
                                             ArrayList<SongModel> songModelArrayList = Stash.getArrayList(Constants.OFF_DATA, SongModel.class);
                                             songModelArrayList.add(model);
                                             Stash.put(Constants.OFF_DATA, songModelArrayList);
@@ -183,7 +177,7 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
                     .setOnStartOrResumeListener(() -> {
                         holder.progress.setVisibility(View.VISIBLE);
                         holder.downloadButton.setVisibility(View.GONE);
-                       // holder.cancel.setVisibility(View.VISIBLE);
+                        // holder.cancel.setVisibility(View.VISIBLE);
 
                         holder.audiovideo.setVisibility(View.GONE);
                     })
@@ -251,14 +245,14 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
 
         });
 
-        if (utils.fileExists(model.getSongName()) && utils.videoExists(model.getSongName())){
+        if (utils.fileExists(model.getSongName()) && utils.videoExists(model.getSongName())) {
             holder.audiovideo.setVisibility(View.GONE);
             holder.type.setText("MP4 | MP3");
-        } else if (utils.fileExists(model.getSongName())){
+        } else if (utils.fileExists(model.getSongName())) {
             holder.audiovideo.setVisibility(View.VISIBLE);
             holder.audiovideo.setText("Download Video");
             holder.type.setText("MP3");
-        } else if (utils.videoExists(model.getSongName())){
+        } else if (utils.videoExists(model.getSongName())) {
             holder.audiovideo.setVisibility(View.VISIBLE);
             holder.audiovideo.setText("Download Audio");
             holder.type.setText("MP4");
@@ -277,14 +271,14 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
         holder.deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showDeleteDialog(model);
+                showDeleteDialog(model, holder.type);
             }
         });
 
 
     }
 
-    private void showDeleteDialog(SongModel model) {
+    private void showDeleteDialog(SongModel model, TextView type) {
 
         final Dialog dialog = new Dialog(context);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -301,11 +295,47 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
         Button fileData = fileDialog.findViewById(R.id.fileData);
 
         fileData.setOnClickListener(v -> {
+            if (type.getText().equals("MP4")) {
+                File fdelete = new File(utils.getVideoPath(model.getSongName()));
+                if (fdelete.exists()) {
+                    if (fdelete.delete()) {
+                        Constants.databaseReference().child(Constants.SONGS)
+                                .child(Constants.auth().getCurrentUser().getUid())
+                                .child(model.getSongPushKey())
+                                .removeValue();
+                        Toast.makeText(context, "File Deleted", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            } else if (type.getText().equals("MP3")) {
+                File fdelete = new File(utils.getSongPath(model.getSongName()));
+                if (fdelete.exists()) {
+                    if (fdelete.delete()) {
+                        Constants.databaseReference().child(Constants.SONGS)
+                                .child(Constants.auth().getCurrentUser().getUid())
+                                .child(model.getSongPushKey())
+                                .removeValue();
+                        Toast.makeText(context, "File Deleted", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+            else {
+
+            }
+            list.remove(model);
+            Stash.put(Constants.OFF_DATA, list);
+            notifyItemRemoved(list.indexOf(model));
             fileDialog.dismiss();
         });
 
-        file.setOnClickListener(v->{
-
+        file.setOnClickListener(v -> {
+            Constants.databaseReference().child(Constants.SONGS)
+                    .child(Constants.auth().getCurrentUser().getUid())
+                    .child(model.getSongPushKey())
+                    .removeValue();
+            list.remove(model);
+            Stash.put(Constants.OFF_DATA, list);
+            notifyItemRemoved(list.indexOf(model));
+            fileDialog.dismiss();
         });
 
         yes.setOnClickListener(v -> {
@@ -325,55 +355,7 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
         fileDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         fileDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         fileDialog.getWindow().setGravity(Gravity.CENTER);
-/*
-        utils.showDialog(context,
-                "Are you sure?",
-                "Do you want to delete this file?",
-                "Yes",
-                "No",
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                        utils.showDialog(context,
-                                "Choose",
-                                "Do you want to retain data?",
-                                "Delete file",
-                                "Delete(File+Data)",
-                                (dialogInterface1, i1) -> {
-                                    /*Constants.databaseReference().child(Constants.SONGS)
-                                            .child(Constants.auth().getCurrentUser().getUid())
-                                            .child(model.getSongPushKey())
-                                            .removeValue();*//*
-                                    list.remove(model);
-                                    notifyItemRemoved(list.indexOf(model));
-                                    dialogInterface1.dismiss();
-                                }, (dialogInterface12, i12) -> {
-                                    /*Constants.databaseReference().child(Constants.SONGS)
-                                            .child(Constants.auth().getCurrentUser().getUid())
-                                            .child(model.getSongPushKey())
-                                            .removeValue();*//*
-                                    if (model.getType().equals("video")) {
-                                        File fdelete = new File(utils.getVideoPath(model.getSongName()));
-                                        if (fdelete.exists()) {
-                                            if (fdelete.delete()) {
-                                                Toast.makeText(context, "File Deleted", Toast.LENGTH_SHORT).show();
-                                            }
-                                        }
-                                    } else {
-                                        File fdelete = new File(utils.getSongPath(model.getSongName()));
-                                        if (fdelete.exists()) {
-                                            if (fdelete.delete()) {
-                                                Toast.makeText(context, "File Deleted", Toast.LENGTH_SHORT).show();
-                                            }
-                                        }
-                                    }
-                                    list.remove(model);
-                                    notifyItemRemoved(list.indexOf(model));
-                                    dialogInterface12.dismiss();
-                                }, true);
-                    }
-                }, (dialogInterface, i) -> dialogInterface.dismiss(), true); */
+
     }
 
     @Override
