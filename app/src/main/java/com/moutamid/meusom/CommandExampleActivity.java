@@ -11,12 +11,18 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -93,20 +99,31 @@ public class CommandExampleActivity extends AppCompatActivity {
 
             ActivityCompat.requestPermissions(CommandExampleActivity.this, permission, 1);
 
-            new AlertDialog.Builder(this)
-                    .setTitle("").setMessage("Do you want to download the both video and audio or just the audio song?")
-                    .setPositiveButton("Video", (dialog, which) -> {
-                        songModel.setType("video");
-                        startDownload();
-                        dialog.dismiss();
-                        Stash.put(songModel.getId(), "video");
-                    })
-                    .setNegativeButton("Audio", (dialog, which) -> {
-                        songModel.setType("audio");
-                        startDownload();
-                        Stash.put(songModel.getId(), "audio");
-                        dialog.dismiss();
-                    }).show();
+            final Dialog dialog = new Dialog(context);
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            dialog.setContentView(R.layout.audio_video_layout);
+
+            Button audio = dialog.findViewById(R.id.audio);
+            Button video = dialog.findViewById(R.id.video);
+
+            audio.setOnClickListener(v->{
+                songModel.setType("audio");
+                startDownload();
+                Stash.put(songModel.getId(), "audio");
+                dialog.dismiss();
+            });
+
+            video.setOnClickListener(v -> {
+                songModel.setType("video");
+                startDownload();
+                dialog.dismiss();
+                Stash.put(songModel.getId(), "video");
+            });
+
+            dialog.show();
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.getWindow().setGravity(Gravity.CENTER);
 
         } else {
             startDownload();

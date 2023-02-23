@@ -5,13 +5,18 @@ import static com.bumptech.glide.load.engine.DiskCacheStrategy.DATA;
 import static com.moutamid.meusom.R.color.darkerGrey;
 import static com.moutamid.meusom.R.color.darkgray;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Environment;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -280,6 +285,47 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
     }
 
     private void showDeleteDialog(SongModel model) {
+
+        final Dialog dialog = new Dialog(context);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.delete_cnfrm_layout);
+
+        final Dialog fileDialog = new Dialog(context);
+        fileDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        fileDialog.setContentView(R.layout.delete_layout);
+
+        Button yes = dialog.findViewById(R.id.yes);
+        Button no = dialog.findViewById(R.id.no);
+
+        Button file = fileDialog.findViewById(R.id.file);
+        Button fileData = fileDialog.findViewById(R.id.fileData);
+
+        fileData.setOnClickListener(v -> {
+            fileDialog.dismiss();
+        });
+
+        file.setOnClickListener(v->{
+
+        });
+
+        yes.setOnClickListener(v -> {
+            dialog.dismiss();
+            fileDialog.show();
+        });
+
+        no.setOnClickListener(v -> {
+            dialog.dismiss();
+        });
+
+        dialog.show();
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().setGravity(Gravity.CENTER);
+
+        fileDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        fileDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        fileDialog.getWindow().setGravity(Gravity.CENTER);
+/*
         utils.showDialog(context,
                 "Are you sure?",
                 "Do you want to delete this file?",
@@ -298,7 +344,7 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
                                     /*Constants.databaseReference().child(Constants.SONGS)
                                             .child(Constants.auth().getCurrentUser().getUid())
                                             .child(model.getSongPushKey())
-                                            .removeValue();*/
+                                            .removeValue();*//*
                                     list.remove(model);
                                     notifyItemRemoved(list.indexOf(model));
                                     dialogInterface1.dismiss();
@@ -306,7 +352,7 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
                                     /*Constants.databaseReference().child(Constants.SONGS)
                                             .child(Constants.auth().getCurrentUser().getUid())
                                             .child(model.getSongPushKey())
-                                            .removeValue();*/
+                                            .removeValue();*//*
                                     if (model.getType().equals("video")) {
                                         File fdelete = new File(utils.getVideoPath(model.getSongName()));
                                         if (fdelete.exists()) {
@@ -327,7 +373,7 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
                                     dialogInterface12.dismiss();
                                 }, true);
                     }
-                }, (dialogInterface, i) -> dialogInterface.dismiss(), true);
+                }, (dialogInterface, i) -> dialogInterface.dismiss(), true); */
     }
 
     @Override
