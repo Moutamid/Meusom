@@ -10,17 +10,30 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
+import android.os.Environment;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
+import com.downloader.Error;
+import com.downloader.OnDownloadListener;
+import com.downloader.PRDownloader;
+import com.fxn.stash.Stash;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.moutamid.meusom.models.SongModel;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import io.reactivex.disposables.CompositeDisposable;
 
@@ -61,23 +74,106 @@ public class YourService  extends Service {
     private DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
     private FirebaseAuth auth = FirebaseAuth.getInstance();
 
-    private String songName;
-
-    private String urlYT, pushKeyYT;
+    public String songName, urlYTAudio, urlYTVideo, ID, albumName, coverURL, type;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
 
-        songName = intent.getStringExtra(Constants.TITLE);
+        songName = intent.getStringExtra(Constants.SONG_NAME);
+        urlYTAudio = intent.getStringExtra(Constants.URL);
+        urlYTVideo = intent.getStringExtra(Constants.videoLink);
+        ID = intent.getStringExtra(Constants.ID);
+        albumName = intent.getStringExtra(Constants.SONG_ALBUM_NAME);
+        coverURL = intent.getStringExtra(Constants.SONG_COVER_URL);
+        type = intent.getStringExtra(Constants.TYPE);
 
-        urlYT = intent.getStringExtra(Constants.YT_URL);
-
-        pushKeyYT = intent.getStringExtra(Constants.PUSH_KEY);
-
-       // runCommand(urlYT, getApplicationContext(), pushKeyYT);
+       runCommand();
 
         return START_STICKY;
+    }
+
+    private void runCommand() {
+        Context context = getApplicationContext();
+        NotificationHelper helper = new NotificationHelper(context);
+
+        File file = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS + "/Meusom./");
+        SongModel model = new SongModel();
+
+        model.setSongYTUrl(urlYTAudio);
+        model.setId(ID);
+        model.setSongName(songName);
+        model.setSongAlbumName(albumName);
+        model.setSongCoverUrl(coverURL);
+        model.setSongVideoURL(urlYTVideo);
+        model.setType(type);
+
+        String d = songName;
+        String downloadUrl = "";
+
+        if (type.equals("video")) {
+            d = d + ".mp4";
+            downloadUrl = urlYTVideo;
+        } else {
+            d = d + ".mp3";
+            downloadUrl = urlYTAudio;
+        }
+
+        PRDownloader.download(downloadUrl, file.getPath(), d)
+                .build()
+                .setOnStartOrResumeListener(() -> {
+                    helper.sendDownloadingNotification(songName, "loading...");
+                })
+                .setOnPauseListener(() -> {
+
+                })
+                .setOnCancelListener(() -> {
+
+                })
+                .setOnProgressListener(progress -> {
+                    long n = progress.currentBytes * 100 / progress.totalBytes;
+                    helper.sendDownloadingNotification(songName,
+                            (int) n + "% completed");
+                })
+                .start(new OnDownloadListener() {
+                    @Override
+                    public void onDownloadComplete() {
+                            Map<String, Object> map = new HashMap<>();
+                            map.put("songYTUrl", YourService.this.ID);
+                            if (Constants.auth().getCurrentUser()!=null){
+                                Constants.databaseReference().child(Constants.SONGS)
+                                        .child(Constants.auth().getCurrentUser().getUid()).push()
+                                        .setValue(map).addOnCompleteListener(task -> {
+                                            completed++;
+                                            helper.sendDownloadingNotification(songName, "Download Completed!");
+
+                                            ArrayList<SongModel> songModelArrayList = Stash.getArrayList(Constants.OFF_DATA, SongModel.class);
+                                            songModelArrayList.add(model);
+                                            Stash.put(Constants.OFF_DATA, songModelArrayList);
+                                            stopSelf();
+                                            Toast.makeText(getApplicationContext(), "Done", Toast.LENGTH_SHORT).show();
+                                        });
+                            }
+                        Toast.makeText(getApplicationContext(), "Download Complete", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onError(Error error) {
+
+                        if (error.isServerError()) {
+                            Log.d("VideoSError", "Server : " + error.getServerErrorMessage());
+                            Toast.makeText(getApplicationContext(), "Server Error: " + error.getServerErrorMessage(), Toast.LENGTH_SHORT).show();
+                        } else if (error.isConnectionError()) {
+
+                            Toast.makeText(getApplicationContext(), "Connection Error: " + error.getConnectionException().getMessage(), Toast.LENGTH_SHORT).show();
+                        } else {
+                            Log.d("VideoSError", "Error : " + error);
+                            Toast.makeText(getApplicationContext(), "" + error, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
+
     }
 
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
@@ -172,9 +268,13 @@ public class YourService  extends Service {
         Intent broadcastIntent = new Intent();
         broadcastIntent.setAction("restartservice");
         broadcastIntent.setClass(this, Restarter.class);
-        broadcastIntent.putExtra(Constants.YT_URL, urlYT);
-        broadcastIntent.putExtra(Constants.PUSH_KEY, pushKeyYT);
-        broadcastIntent.putExtra(Constants.TITLE, songName);
+        broadcastIntent.putExtra(Constants.URL, urlYTAudio);
+        broadcastIntent.putExtra(Constants.SONG_NAME, songName);
+        broadcastIntent.putExtra(Constants.ID, ID);
+        broadcastIntent.putExtra(Constants.videoLink, urlYTVideo);
+        broadcastIntent.putExtra(Constants.SONG_ALBUM_NAME, albumName);
+        broadcastIntent.putExtra(Constants.SONG_COVER_URL, coverURL);
+        broadcastIntent.putExtra(Constants.TYPE, type);
         this.sendBroadcast(broadcastIntent);
     }
 
@@ -187,6 +287,11 @@ public class YourService  extends Service {
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         Log.e("onTaskRemoved: ", "called.");
+
+        if (completed > 0) {
+            return;
+        }
+
         Intent restartServiceIntent = new Intent(getApplicationContext(),
                 this.getClass());
         restartServiceIntent.setPackage(getPackageName());
@@ -200,15 +305,17 @@ public class YourService  extends Service {
                 AlarmManager.ELAPSED_REALTIME,
                 SystemClock.elapsedRealtime() + 1000,
                 restartServicePendingIntent);
-        if (completed > 0) {
-            return;
-        }
+
         Intent broadcastIntent = new Intent();
         broadcastIntent.setAction("restartservice");
         broadcastIntent.setClass(this, Restarter.class);
-        broadcastIntent.putExtra(Constants.YT_URL, urlYT);
-        broadcastIntent.putExtra(Constants.PUSH_KEY, pushKeyYT);
-        broadcastIntent.putExtra(Constants.TITLE, songName);
+        broadcastIntent.putExtra(Constants.URL, urlYTAudio);
+        broadcastIntent.putExtra(Constants.SONG_NAME, songName);
+        broadcastIntent.putExtra(Constants.ID, ID);
+        broadcastIntent.putExtra(Constants.videoLink, urlYTVideo);
+        broadcastIntent.putExtra(Constants.SONG_ALBUM_NAME, albumName);
+        broadcastIntent.putExtra(Constants.SONG_COVER_URL, coverURL);
+        broadcastIntent.putExtra(Constants.TYPE, type);
         this.sendBroadcast(broadcastIntent);
 
         super.onTaskRemoved(rootIntent);

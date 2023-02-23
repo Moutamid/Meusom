@@ -33,6 +33,7 @@ public class Constants {
     public static final String videoLink = "videoLink";
     public static final String SONG_ALBUM_NAME = "songAlbumName";
     public static final String SONG_COVER_URL = "songCoverUrl";
+    public static final String TYPE = "type";
     public static final String SONGS = "songs";
     public static final String COMPLETED = "COMPLETED 100%";
     public static final String NOT_DOWNLOADED = "NOT DOWNLOADED";
