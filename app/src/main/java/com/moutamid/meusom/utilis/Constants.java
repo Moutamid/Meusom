@@ -1,9 +1,11 @@
 package com.moutamid.meusom.utilis;
 
+import android.Manifest;
 import android.app.Activity;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -21,8 +23,25 @@ import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
 public class Constants {
 
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
+    public static final String[] permissions13 = {
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.MANAGE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.READ_MEDIA_VIDEO,
+            Manifest.permission.READ_MEDIA_IMAGES,
+            Manifest.permission.POST_NOTIFICATIONS,
+            Manifest.permission.READ_MEDIA_AUDIO
+    };
+
+    public static final String[] permissions = {
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.POST_NOTIFICATIONS,
+            Manifest.permission.READ_EXTERNAL_STORAGE
+    };
     public static final int[] audio_iTag = {141,140,171,251,250,249,139,37,6,5};
     public static final int[] video_iTag = {22,84,45,83,44,18,82,43,6,5};
     public static final String[] special = {"$","%","^","&", "*","|", ":", "\"", "\'", ";", "@", "#", "!", "~", "`", "?", "+", "=", "/", "\\", ".", ","};

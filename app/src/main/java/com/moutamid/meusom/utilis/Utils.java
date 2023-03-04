@@ -98,7 +98,7 @@ public class Utils {
                             .getExternalStoragePublicDirectory(
                                     Environment.DIRECTORY_DOWNLOADS) +
                             File.separator
-                            + "Meusom."
+                            + "Meusom"
                             + File.separator
                             + name
                             + ".mp3";
@@ -108,7 +108,7 @@ public class Utils {
                     Environment
                             .getExternalStorageDirectory().getAbsolutePath() +
                             File.separator
-                            + "Meusom."
+                            + "Meusom"
                             + File.separator
                             + name
                             + ".mp3";
@@ -126,7 +126,7 @@ public class Utils {
                             .getExternalStoragePublicDirectory(
                                     Environment.DIRECTORY_DOWNLOADS) +
                             File.separator
-                            + "Meusom."
+                            + "Meusom"
                             + File.separator
                             + name
                             + ".mp4";
@@ -136,7 +136,7 @@ public class Utils {
                     Environment
                             .getExternalStorageDirectory().getAbsolutePath() +
                             File.separator
-                            + "Meusom."
+                            + "Meusom"
                             + File.separator
                             + name
                             + ".mp4";
@@ -154,7 +154,7 @@ public class Utils {
                             .getExternalStoragePublicDirectory(
                                     Environment.DIRECTORY_DOWNLOADS) +
                             File.separator
-                            + "Meusom."
+                            + "Meusom"
                             + File.separator
                             + name
                             + ".mp3";
@@ -164,7 +164,7 @@ public class Utils {
                     Environment
                             .getExternalStorageDirectory().getAbsolutePath() +
                             File.separator
-                            + "Meusom."
+                            + "Meusom"
                             + File.separator
                             + name
                             + ".mp3";
@@ -181,7 +181,7 @@ public class Utils {
                             .getExternalStoragePublicDirectory(
                                     Environment.DIRECTORY_DOWNLOADS) +
                             File.separator
-                            + "Meusom."
+                            + "Meusom"
                             + File.separator
                             + name
                             + ".mp4";
@@ -191,7 +191,7 @@ public class Utils {
                     Environment
                             .getExternalStorageDirectory().getAbsolutePath() +
                             File.separator
-                            + "Meusom."
+                            + "Meusom"
                             + File.separator
                             + name
                             + ".mp4";
@@ -208,7 +208,7 @@ public class Utils {
                             .getExternalStoragePublicDirectory(
                                     Environment.DIRECTORY_DOWNLOADS) +
                             File.separator
-                            + "Meusom."
+                            + "Meusom"
                             + File.separator;
 
         } else {
@@ -216,7 +216,7 @@ public class Utils {
                     Environment
                             .getExternalStorageDirectory().getAbsolutePath() +
                             File.separator
-                            + "Meusom."
+                            + "Meusom"
                             + File.separator;
 
         }

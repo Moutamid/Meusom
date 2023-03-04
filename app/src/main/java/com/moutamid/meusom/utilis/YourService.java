@@ -97,7 +97,7 @@ public class YourService  extends Service {
         Context context = getApplicationContext();
         NotificationHelper helper = new NotificationHelper(context);
 
-        File file = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS + "/Meusom./");
+        File file = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS + "/Meusom/");
         SongModel model = new SongModel();
 
         model.setSongYTUrl(urlYTAudio);

@@ -74,7 +74,7 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
         });
 
         holder.downloadButton.setOnClickListener(v -> {
-            File file = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS + "/Meusom./");
+            File file = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS + "/Meusom/");
 
             String d = model.getSongName();
 
@@ -160,7 +160,7 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
             Log.d("VideoSError", "name : " + model.getSongName());
             Log.d("VideoSError", "link Audio : " + model.getSongYTUrl());
             Log.d("VideoSError", "link video : " + model.getSongVideoURL());
-            File file = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS + "/Meusom./");
+            File file = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS + "/Meusom/");
 
             String d = model.getSongName();
 

@@ -3,18 +3,28 @@ package com.moutamid.meusom;
 import static com.bumptech.glide.Glide.with;
 import static com.bumptech.glide.load.engine.DiskCacheStrategy.DATA;
 import static com.moutamid.meusom.R.color.lightBlack;
+import static com.moutamid.meusom.R.color.transparent;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.Manifest;
 import android.animation.Animator;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -44,12 +54,17 @@ import com.fxn.stash.Stash;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
+import com.moutamid.meusom.Services.OnClearFromRecentService;
 import com.moutamid.meusom.models.SongIDModel;
 import com.moutamid.meusom.models.SongModel;
+import com.moutamid.meusom.models.Track;
 import com.moutamid.meusom.utilis.Constants;
+import com.moutamid.meusom.utilis.CreateNotification;
+import com.moutamid.meusom.utilis.Playable;
 import com.moutamid.meusom.utilis.Utils;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import at.huber.youtubeExtractor.VideoMeta;
@@ -57,11 +72,18 @@ import at.huber.youtubeExtractor.YouTubeExtractor;
 import at.huber.youtubeExtractor.YtFile;
 import musicplayer.Utilities;
 
-public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCompletionListener, SeekBar.OnSeekBarChangeListener {
+public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCompletionListener, SeekBar.OnSeekBarChangeListener, AudioManager.OnAudioFocusChangeListener, Playable {
     private static final String TAG = "TAGG";
     private Context context = MainActivity.this;
 
     private Utils utils = new Utils();
+
+    NotificationManager notificationManager;
+
+    List<Track> tracks;
+
+    int position = 0;
+    boolean isPlaying = false;
 
     private LinearLayout bottom_music_layout;
     private RelativeLayout music_player_layout;
@@ -95,6 +117,9 @@ public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCo
     //    private ArrayList<HashMap<String, String>> songsList = new ArrayList<HashMap<String, String>>();
     private ArrayList<SongModel> songsList = new ArrayList<>();
     private ArrayList<SongModel> songsListAll = new ArrayList<>();
+    AudioManager am;
+    // int result;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,9 +130,21 @@ public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCo
             utils.changeLanguage(context, "pr");
         }
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            createChannel();
+            registerReceiver(broadcastReceiver, new IntentFilter("TRACKS_TRACKS"));
+            startService(new Intent(getBaseContext(), OnClearFromRecentService.class));
+        }
+
         setContentView(R.layout.activity_main);
 
         Constants.checkApp(this);
+        //am = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
+
+
+// Request focus for music stream and pass AudioManager.OnAudioFocusChangeListener
+// implementation reference
+        //result = am.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
 
         initViewsAndLayouts();
         btnPlay = findViewById(R.id.btnPlay);
@@ -130,11 +167,11 @@ public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCo
 
         playVideo.setOnClickListener(v -> {
             String name = songsList.get(currentSongIndex).getSongName();
-            if (utils.videoExists(name)){
+            if (utils.videoExists(name)) {
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setDataAndType(Uri.parse(utils.getVideoPath(name)), "video/*");
                 startActivity(Intent.createChooser(intent, "Complete action using"));
-                if (mp.isPlaying()){
+                if (mp.isPlaying()) {
                     mp.pause();
                 }
             } else {
@@ -186,6 +223,7 @@ public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCo
                     // Resume song
                     if (mp != null) {
                         mp.start();
+
                         // Changing button image to pause button
                         btnPlay.setImageResource(R.drawable.pause);
                         btnPlaySmall.setImageResource(R.drawable.pause);
@@ -585,68 +623,67 @@ public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCo
         songsListAll.clear();
 
         ArrayList<SongModel> list = Stash.getArrayList(Constants.OFF_DATA, SongModel.class);
+        // Toast.makeText(context, ""+list.size(), Toast.LENGTH_SHORT).show();
+        if (list.size() > 0) {
 
-        if (list.size() == 0)
-            return;
-
-        for(SongModel model: list) {
-            Log.d(TAG, "getSongsList: loop");
-            if (utils.fileExists(model.getSongName())) {
-                songsList.add(model);
-                songsListAll.add(model);
+            for (SongModel model : list) {
+                Log.d(TAG, "getSongsList: loop");
+                if (utils.fileExists(model.getSongName())) {
+                    songsList.add(model);
+                    songsListAll.add(model);
+                }
             }
-        }
+            if (songsList.size() > 0) {
+                if (firstTime) {
+                    Log.d(TAG, "getSongsList: firstTime");
 
-        if (firstTime) {
-            Log.d(TAG, "getSongsList: firstTime");
+                    // PLAYLIST LOADED
+                    // By default play first song
+                    currentSongIndex = utils.getStoredInteger(MainActivity.this, Constants.LAST_SONG_INDEX);
 
-            // PLAYLIST LOADED
-            // By default play first song
-            currentSongIndex = utils.getStoredInteger(MainActivity.this, Constants.LAST_SONG_INDEX);
+                    SongModel currentSongModel = songsList.get(currentSongIndex);
 
-            SongModel currentSongModel = songsList.get(currentSongIndex);
+                    // TITLE BIG PLAYER
+                    String songTitle = currentSongModel.getSongName();
+                    songTitleLabel.setText(songTitle);
 
-                // TITLE BIG PLAYER
-                String songTitle = currentSongModel.getSongName();
-                songTitleLabel.setText(songTitle);
-
-                //TITLE SMALL PLAYER
-                TextView titleSmall = findViewById(R.id.title_small_playerHome);
+                    //TITLE SMALL PLAYER
+                    TextView titleSmall = findViewById(R.id.title_small_playerHome);
 //            titleSmall.setSelected(true);
-                titleSmall.setText(songTitle);
+                    titleSmall.setText(songTitle);
 
-                // ALBUM NAME SMALL PLAYER
-                TextView albumName = findViewById(R.id.albumNameHome);
+                    // ALBUM NAME SMALL PLAYER
+                    TextView albumName = findViewById(R.id.albumNameHome);
 //            albumName.setSelected(true);
-                albumName.setText(currentSongModel.getSongAlbumName());
+                    albumName.setText(currentSongModel.getSongAlbumName());
 
-                // COVER IMAGE BIG PLAYER
-                with(context)
-                        .asBitmap()
-                        .load(currentSongModel.getSongCoverUrl())
-                        .apply(new RequestOptions()
-                                .placeholder(R.color.lightBlack)
-                                .error(lightBlack)
-                        )
-                        .diskCacheStrategy(DATA)
-                        .into((ImageView) findViewById(R.id.songCoverImage));
+                    // COVER IMAGE BIG PLAYER
+                    with(context)
+                            .asBitmap()
+                            .load(currentSongModel.getSongCoverUrl())
+                            .apply(new RequestOptions()
+                                    .placeholder(R.color.lightBlack)
+                                    .error(lightBlack)
+                            )
+                            .diskCacheStrategy(DATA)
+                            .into((ImageView) findViewById(R.id.songCoverImage));
 
-                // COVER IMAGE SMALL PLAYER
-                with(context)
-                        .asBitmap()
-                        .load(currentSongModel.getSongCoverUrl())
-                        .apply(new RequestOptions()
-                                .placeholder(R.color.lightBlack)
-                                .error(lightBlack)
-                        )
-                        .diskCacheStrategy(DATA)
-                        .into((ImageView) findViewById(R.id.current_music_player_image_view));
+                    // COVER IMAGE SMALL PLAYER
+                    with(context)
+                            .asBitmap()
+                            .load(currentSongModel.getSongCoverUrl())
+                            .apply(new RequestOptions()
+                                    .placeholder(R.color.lightBlack)
+                                    .error(lightBlack)
+                            )
+                            .diskCacheStrategy(DATA)
+                            .into((ImageView) findViewById(R.id.current_music_player_image_view));
 
-                // set Progress bar values
-                songProgressBar.setProgress(0);
-                songProgressBarSmall.setProgress(0);
-                songProgressBar.setMax(100);
-                songProgressBarSmall.setMax(100);
+                    // set Progress bar values
+                    songProgressBar.setProgress(0);
+                    songProgressBarSmall.setProgress(0);
+                    songProgressBar.setMax(100);
+                    songProgressBarSmall.setMax(100);
 
             /*playSong(currentSongIndex);/
 
@@ -660,22 +697,24 @@ public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCo
                     btnPlaySmall.setImageResource(R.drawable.play);
                 }
             }*/
-            firstTime = false;
-        } else {
-            Log.d(TAG, "getSongsList: else {");
+                    firstTime = false;
+                } else {
+                    Log.d(TAG, "getSongsList: else {");
 
-            if (Stash.getBoolean(Constants.IS_CLICKED, false)) {
-                for (int i = 0; i <= songsList.size() - 1; i++) {
-                    if (songsList.get(i).getSongName().equals(Stash.getString(Constants.PUSH_KEY))) {
-                        currentSongIndex = i;
-                        break;
+                    if (Stash.getBoolean(Constants.IS_CLICKED, false)) {
+                        for (int i = 0; i <= songsList.size() - 1; i++) {
+                            if (songsList.get(i).getSongName().equals(Stash.getString(Constants.PUSH_KEY))) {
+                                currentSongIndex = i;
+                                break;
+                            }
+                        }
+                        Log.d(TAG, "getSongsList: playSong(): " + currentSongIndex);
+                        playSong(currentSongIndex);
+                        Stash.put(Constants.IS_CLICKED, false);
                     }
                 }
-                Log.d(TAG, "getSongsList: playSong(): " + currentSongIndex);
-                playSong(currentSongIndex);
-                Stash.put(Constants.IS_CLICKED, false);
             }
-        }
+        } else return;
     }
 
 
@@ -701,8 +740,6 @@ public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCo
         }
 
     }*/
-
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -725,7 +762,7 @@ public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCo
      * @param songIndex - index of song
      */
     public void playSong(int songIndex) {
-        Log.d(TAG, "playSong: songIndex: "+songIndex);
+        Log.d(TAG, "playSong: songIndex: " + songIndex);
         if (!isStoragePermissionGranted()) {
             Log.d(TAG, "playSong: ");
             Toast.makeText(context, "grant storage permission and retry", Toast.LENGTH_LONG).show();
@@ -814,20 +851,51 @@ public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCo
     }
 
     public boolean isStoragePermissionGranted() {
-//        Log.d(TAGG, "isStoragePermissionGranted: ");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    == PackageManager.PERMISSION_GRANTED) {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (
+                    (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_MEDIA_VIDEO) == PackageManager.PERMISSION_GRANTED) &&
+                    (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED)
+            ) {
                 return true;
             } else {
-                ActivityCompat.requestPermissions(this, new String[]{
-                        android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+
+                shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE);
+                shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_AUDIO);
+                shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_VIDEO);
+                shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS);
+
+                requestPermissions(Constants.permissions13, 1);
+                /* ActivityCompat.requestPermissions(this, Constants.permissions, 1); */
                 return false;
             }
         } else {
-            return true;
+
+//        Log.d(TAGG, "isStoragePermissionGranted: ");
+            if (
+                    (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) &&
+                    (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
+            ) {
+                return true;
+            } else {
+
+                shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE);
+
+                requestPermissions(Constants.permissions, 1);
+               // request_result_launcher.launch(Constants.permissions);
+                /* ActivityCompat.requestPermissions(this, Constants.permissions, 1);*/
+                return false;
+            }
         }
     }
+
+    private ActivityResultLauncher<String> request_result_launcher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGraned -> {
+        if (isGraned){
+
+        }
+    });
 
     private boolean checkIfAdsAreWatched() {
         //TODO: THESE BELOW LINES SHOULD NOT BE COMMENTED
@@ -964,6 +1032,13 @@ public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCo
         Log.d(TAG, "onDestroy: ");
         mHandler.removeCallbacks(mUpdateTimeTask);
         mp.release();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            notificationManager.cancelAll();
+        }
+
+        unregisterReceiver(broadcastReceiver);
+
     }
 
     //--------------------------------------------------------------------------------
@@ -1122,4 +1197,81 @@ public class MainActivity extends AppCompatActivity  implements MediaPlayer.OnCo
 
         super.onBackPressed();
     }
+
+    @Override
+    public void onAudioFocusChange(int focusChange) {
+        if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
+            mp.pause();
+        } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
+            // Resume
+            mp.start();
+        } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
+            // Stop or pause depending on your need
+            mp.stop();
+        }
+    }
+
+    @Override
+    public void onTrackPrevious() {
+        currentSongIndex--;
+        CreateNotification.createNotification(MainActivity.this, songsList.get(currentSongIndex),
+                R.drawable.ic_pause_black_24dp, currentSongIndex, songsList.size()-1);
+    }
+
+    @Override
+    public void onTrackPlay() {
+        CreateNotification.createNotification(MainActivity.this, songsList.get(currentSongIndex),
+                R.drawable.ic_pause_black_24dp, currentSongIndex, songsList.size()-1);
+        isPlaying = true;
+    }
+
+    @Override
+    public void onTrackPause() {
+        CreateNotification.createNotification(MainActivity.this, songsList.get(currentSongIndex),
+                R.drawable.ic_pause_black_24dp, currentSongIndex, songsList.size()-1);
+        isPlaying = false;
+    }
+
+    @Override
+    public void onTrackNext() {
+        currentSongIndex++;
+        CreateNotification.createNotification(MainActivity.this, songsList.get(currentSongIndex),
+                R.drawable.ic_pause_black_24dp, currentSongIndex, songsList.size()-1);
+    }
+
+    private void createChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            NotificationChannel channel = new NotificationChannel(CreateNotification.CHANNEL_ID,
+                    "Suleman", NotificationManager.IMPORTANCE_LOW);
+
+            notificationManager = getSystemService(NotificationManager.class);
+            if (notificationManager != null){
+                notificationManager.createNotificationChannel(channel);
+            }
+        }
+    }
+
+    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getExtras().getString("actionname");
+
+            switch (action){
+                case CreateNotification.ACTION_PREVIUOS:
+                    onTrackPrevious();
+                    break;
+                case CreateNotification.ACTION_PLAY:
+                    if (isPlaying){
+                        onTrackPause();
+                    } else {
+                        onTrackPlay();
+                    }
+                    break;
+                case CreateNotification.ACTION_NEXT:
+                    onTrackNext();
+                    break;
+            }
+        }
+    };
+
 }
