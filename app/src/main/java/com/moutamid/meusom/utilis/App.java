@@ -1,6 +1,8 @@
 package com.moutamid.meusom.utilis;
 
 import android.app.Application;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -22,7 +24,7 @@ public class App extends Application {
         Stash.init(this);
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 //        PRDownloader.initialize(getApplicationContext());
-
+        createNotification();
         configureRxJavaErrorHandler();
         /*Completable.fromAction(this::initLibraries).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new DisposableCompletableObserver() {
             @Override
@@ -36,6 +38,16 @@ public class App extends Application {
                 Toast.makeText(getApplicationContext(), "initialization failed: " + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
             }
         });*/
+    }
+
+    private void createNotification() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel notificationChannel = new NotificationChannel(CreateNotification.CHANNEL_ID,
+                    "Meusom Music", NotificationManager.IMPORTANCE_HIGH);
+            notificationChannel.setDescription("Music Chanel");
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(notificationChannel);
+        }
     }
 
     private void configureRxJavaErrorHandler() {

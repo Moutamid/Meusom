@@ -1,30 +1,60 @@
 package com.moutamid.meusom.Services;
 
+import static com.moutamid.meusom.utilis.CreateNotification.ACTION_NEXT;
+import static com.moutamid.meusom.utilis.CreateNotification.ACTION_PLAY;
+import static com.moutamid.meusom.utilis.CreateNotification.ACTION_PREVIUOS;
+
 import android.app.Service;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.IBinder;
 
 import androidx.annotation.Nullable;
 
+import com.moutamid.meusom.utilis.Playable;
+
 public class OnClearFromRecentService extends Service {
+
+    Playable playable;
+    private IBinder iBinder = new MyBinder();
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return iBinder;
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        return START_NOT_STICKY;
+        String name = intent.getStringExtra("myAction");
+        if (name!=null){
+            switch (name){
+                case ACTION_PLAY:
+                    if (playable!=null){
+                        playable.onTrackPlay();
+                    }
+                    break;
+                case ACTION_PREVIUOS:
+                    if (playable!=null){
+                        playable.onTrackPrevious();
+                    }
+                    break;
+                case ACTION_NEXT:
+                    if (playable!=null){
+                        playable.onTrackNext();
+                    }
+                    break;
+            }
+        }
+        return START_STICKY;
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void setCallBack(Playable playable){
+        this.playable = playable;
     }
 
-    @Override
-    public void onTaskRemoved(Intent rootIntent) {
-        stopSelf();
+    public class MyBinder extends Binder {
+        public OnClearFromRecentService getService(){
+            return OnClearFromRecentService.this;
+        }
     }
 }

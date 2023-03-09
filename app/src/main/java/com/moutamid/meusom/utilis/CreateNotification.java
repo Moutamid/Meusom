@@ -4,6 +4,7 @@ import static androidx.core.app.ActivityCompat.requestPermissions;
 import static androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -75,26 +76,23 @@ public class CreateNotification {
 
             //create notification
             notification = new NotificationCompat.Builder(context, CHANNEL_ID)
-                    .setSmallIcon(R.drawable.ic_music_note)
+                    .setSmallIcon(R.drawable.ic_home_img)
                     .setContentTitle(track.getSongName())
                     .setContentText(track.getSongAlbumName())
                     .setLargeIcon(icon)
                     .setOnlyAlertOnce(true)//show notification for only first time
-                    .setShowWhen(false)
+                    .setShowWhen(true)
                     .addAction(drw_previous, "Previous", pendingIntentPrevious)
                     .addAction(playbutton, "Play", pendingIntentPlay)
                     .addAction(drw_next, "Next", pendingIntentNext)
-                    .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
-                            .setShowActionsInCompactView(0, 1, 2)
-                            .setMediaSession(mediaSessionCompat.getSessionToken()))
                     .setPriority(NotificationCompat.PRIORITY_LOW)
                     .build();
 
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-
+               // ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1);
                 return;
             }
-            notificationManagerCompat.notify(1, notification);
+            notificationManagerCompat.notify(0, notification);
 
         }
     }

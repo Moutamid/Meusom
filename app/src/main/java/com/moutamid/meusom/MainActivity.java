@@ -22,9 +22,11 @@ import android.app.Dialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -33,6 +35,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -72,7 +76,7 @@ import at.huber.youtubeExtractor.YouTubeExtractor;
 import at.huber.youtubeExtractor.YtFile;
 import musicplayer.Utilities;
 
-public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCompletionListener, SeekBar.OnSeekBarChangeListener, AudioManager.OnAudioFocusChangeListener, Playable {
+public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCompletionListener, SeekBar.OnSeekBarChangeListener, AudioManager.OnAudioFocusChangeListener, Playable, ServiceConnection {
     private static final String TAG = "TAGG";
     private Context context = MainActivity.this;
 
@@ -81,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
     NotificationManager notificationManager;
 
     List<Track> tracks;
-
+    OnClearFromRecentService service;
     int position = 0;
     boolean isPlaying = false;
 
@@ -119,7 +123,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
     private ArrayList<SongModel> songsListAll = new ArrayList<>();
     AudioManager am;
     // int result;
-
+    MediaSessionCompat mediaSessionCompat;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -130,15 +134,16 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
             utils.changeLanguage(context, "pr");
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            createChannel();
-            registerReceiver(broadcastReceiver, new IntentFilter("TRACKS_TRACKS"));
-            startService(new Intent(getBaseContext(), OnClearFromRecentService.class));
-        }
-
         setContentView(R.layout.activity_main);
 
         Constants.checkApp(this);
+
+        mediaSessionCompat = new MediaSessionCompat(this, "PlayerAudio");
+
+        Intent i = new Intent(this, OnClearFromRecentService.class);
+        bindService(i, this, BIND_AUTO_CREATE);
+        startService(i);
+
         //am = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
 
 
@@ -223,7 +228,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
                     // Resume song
                     if (mp != null) {
                         mp.start();
-
                         // Changing button image to pause button
                         btnPlay.setImageResource(R.drawable.pause);
                         btnPlaySmall.setImageResource(R.drawable.pause);
@@ -259,7 +263,14 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
                 } else {
                     // Resume song
                     if (mp != null) {
-                        mp.start();
+                        if (currentSongIndex < (songsList.size() - 1)) {
+                            playSong(currentSongIndex + 1);
+                            currentSongIndex = currentSongIndex + 1;
+                        } else {
+                            // play first song
+                            playSong(currentSongIndex);
+                            //currentSongIndex = 0;
+                        }
                         // Changing button image to pause button
                         btnPlay.setImageResource(R.drawable.pause);
                         btnPlaySmall.setImageResource(R.drawable.pause);
@@ -541,6 +552,18 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
 
         conversationRecyclerView.setAdapter(adapter);
 
+    }
+
+    @Override
+    public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+        OnClearFromRecentService.MyBinder binder = (OnClearFromRecentService.MyBinder) iBinder;
+        service = binder.getService();
+        service.setCallBack(MainActivity.this);
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName componentName) {
+        service = null;
     }
 
     private class RecyclerViewAdapterMessages extends RecyclerView.Adapter
@@ -842,7 +865,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
 
             // Updating progress bar
             updateProgressBar();
-
+            CreateNotification.createNotification(MainActivity.this, songsList.get(songIndex),
+                    R.drawable.ic_pause_black_24dp, songIndex, songsList.size()-1);
         } catch (Exception e) {
             e.printStackTrace();
             Log.i(TAG, "playSong: EXCEPTION: " + e.getMessage());
@@ -1036,9 +1060,12 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             notificationManager.cancelAll();
         }
+    }
 
-        unregisterReceiver(broadcastReceiver);
-
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unbindService(this);
     }
 
     //--------------------------------------------------------------------------------
@@ -1213,16 +1240,25 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
 
     @Override
     public void onTrackPrevious() {
-        currentSongIndex--;
+        --currentSongIndex;
         CreateNotification.createNotification(MainActivity.this, songsList.get(currentSongIndex),
                 R.drawable.ic_pause_black_24dp, currentSongIndex, songsList.size()-1);
+        playSong(currentSongIndex);
     }
 
     @Override
     public void onTrackPlay() {
-        CreateNotification.createNotification(MainActivity.this, songsList.get(currentSongIndex),
-                R.drawable.ic_pause_black_24dp, currentSongIndex, songsList.size()-1);
-        isPlaying = true;
+        if(isPlaying){
+            mp.pause();
+            CreateNotification.createNotification(MainActivity.this, songsList.get(currentSongIndex),
+                    R.drawable.ic_play_arrow_black_24dp, currentSongIndex, songsList.size()-1);
+            isPlaying = false;
+        } else {
+            mp.start();
+            CreateNotification.createNotification(MainActivity.this, songsList.get(currentSongIndex),
+                    R.drawable.ic_pause_black_24dp, currentSongIndex, songsList.size()-1);
+            isPlaying = true;
+        }
     }
 
     @Override
@@ -1230,48 +1266,16 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
         CreateNotification.createNotification(MainActivity.this, songsList.get(currentSongIndex),
                 R.drawable.ic_pause_black_24dp, currentSongIndex, songsList.size()-1);
         isPlaying = false;
+        mp.pause();
     }
 
     @Override
     public void onTrackNext() {
-        currentSongIndex++;
+        ++currentSongIndex;
         CreateNotification.createNotification(MainActivity.this, songsList.get(currentSongIndex),
                 R.drawable.ic_pause_black_24dp, currentSongIndex, songsList.size()-1);
+        playSong(currentSongIndex);
     }
 
-    private void createChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            NotificationChannel channel = new NotificationChannel(CreateNotification.CHANNEL_ID,
-                    "Suleman", NotificationManager.IMPORTANCE_LOW);
-
-            notificationManager = getSystemService(NotificationManager.class);
-            if (notificationManager != null){
-                notificationManager.createNotificationChannel(channel);
-            }
-        }
-    }
-
-    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getExtras().getString("actionname");
-
-            switch (action){
-                case CreateNotification.ACTION_PREVIUOS:
-                    onTrackPrevious();
-                    break;
-                case CreateNotification.ACTION_PLAY:
-                    if (isPlaying){
-                        onTrackPause();
-                    } else {
-                        onTrackPlay();
-                    }
-                    break;
-                case CreateNotification.ACTION_NEXT:
-                    onTrackNext();
-                    break;
-            }
-        }
-    };
 
 }
