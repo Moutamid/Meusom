@@ -19,6 +19,7 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.fxn.stash.Stash;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -68,6 +69,7 @@ public class SettingsActivity extends AppCompatActivity {
                                 dialogInterface.dismiss();
                                 finish();
                                 startActivity(intent);
+                               // Stash.clear(Constants.OFF_DATA);
                             }
                         }, new DialogInterface.OnClickListener() {
                             @Override

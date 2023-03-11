@@ -123,6 +123,9 @@ public class DownloadActivity extends AppCompatActivity {
                                 d = d.replace(s, "");
                             }
                         }
+
+                        d = d.trim();
+
                         String coverUrl = vMeta.getHqImageUrl();
                         coverUrl = coverUrl.replace("http", "https");
 

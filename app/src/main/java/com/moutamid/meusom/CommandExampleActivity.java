@@ -158,4 +158,9 @@ public class CommandExampleActivity extends AppCompatActivity {
         conversationRecyclerView.setItemViewCacheSize(20);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+    }
 }

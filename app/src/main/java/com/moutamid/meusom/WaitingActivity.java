@@ -99,7 +99,7 @@ public class WaitingActivity extends AppCompatActivity {
                             model.setSongYTUrl(audioURL);
                             model.setSongName(d);
 
-                            model.setType(Stash.getString(list.get(finalI).id));
+                            model.setType("");
 
                             model.setSongAlbumName(vMeta.getAuthor());
 

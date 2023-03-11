@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
 
         Intent i = new Intent(this, OnClearFromRecentService.class);
         bindService(i, this, BIND_AUTO_CREATE);
-        startService(i);
+       // startService(i);
 
         //am = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
 
@@ -1057,15 +1057,15 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
         mHandler.removeCallbacks(mUpdateTimeTask);
         mp.release();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+       /* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             notificationManager.cancelAll();
-        }
+        }*/
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        unbindService(this);
+        //unbindService(this);
     }
 
     //--------------------------------------------------------------------------------

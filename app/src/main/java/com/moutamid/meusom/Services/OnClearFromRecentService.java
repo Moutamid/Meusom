@@ -25,24 +25,26 @@ public class OnClearFromRecentService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        String name = intent.getStringExtra("myAction");
-        if (name!=null){
-            switch (name){
-                case ACTION_PLAY:
-                    if (playable!=null){
-                        playable.onTrackPlay();
-                    }
-                    break;
-                case ACTION_PREVIUOS:
-                    if (playable!=null){
-                        playable.onTrackPrevious();
-                    }
-                    break;
-                case ACTION_NEXT:
-                    if (playable!=null){
-                        playable.onTrackNext();
-                    }
-                    break;
+        if (intent != null) {
+            String name = intent.getStringExtra("myAction");
+            if (name != null) {
+                switch (name) {
+                    case ACTION_PLAY:
+                        if (playable != null) {
+                            playable.onTrackPlay();
+                        }
+                        break;
+                    case ACTION_PREVIUOS:
+                        if (playable != null) {
+                            playable.onTrackPrevious();
+                        }
+                        break;
+                    case ACTION_NEXT:
+                        if (playable != null) {
+                            playable.onTrackNext();
+                        }
+                        break;
+                }
             }
         }
         return START_STICKY;

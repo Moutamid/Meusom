@@ -19,6 +19,7 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.android.exoplayer2.C;
 import com.moutamid.meusom.utilis.Constants;
 import com.moutamid.meusom.utilis.Utils;
 import com.moutamid.meusom.utilis.YourService;
@@ -51,6 +52,11 @@ public class MainActivity2 extends AppCompatActivity {
             if ("text/plain".equals(type)) {
                 String url = intent.getStringExtra(Intent.EXTRA_TEXT);
 
+                String ID = Constants.getVideoId(url);
+
+                Log.d("VideoSError", "URL : " + url);
+                Log.d("VideoSError", "ID : " + ID);
+
                 final Dialog dialog = new Dialog(MainActivity2.this);
                 dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
                 dialog.setContentView(R.layout.audio_video_layout);
@@ -62,7 +68,8 @@ public class MainActivity2 extends AppCompatActivity {
                     getSong(url, "audio");
                     dialog.dismiss();
                     progressDialog.show();
-                });
+
+               });
 
                 video.setOnClickListener(v -> {
                     getSong(url, "video");
@@ -118,6 +125,9 @@ public class MainActivity2 extends AppCompatActivity {
                                 d = d.replace(s, "");
                             }
                         }
+
+                        d = d.trim();
+
                         String coverUrl = vMeta.getHqImageUrl();
                         coverUrl = coverUrl.replace("http", "https");
 
