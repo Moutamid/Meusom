@@ -33,7 +33,7 @@
                 <action android:name="actionplay" />
                 <action android:name="actionnext" />
                 <action android:name="actionprevious" />
-
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
 
         </receiver>

@@ -1,10 +1,6 @@
 package com.moutamid.meusom.utilis;
 
-import static androidx.core.app.ActivityCompat.requestPermissions;
-import static androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale;
-
 import android.Manifest;
-import android.app.Activity;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -12,8 +8,13 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaMetadata;
+import android.media.MediaPlayer;
 import android.os.Build;
+import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
+import android.widget.RemoteViews;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
@@ -22,26 +23,50 @@ import androidx.core.app.NotificationManagerCompat;
 import com.moutamid.meusom.R;
 import com.moutamid.meusom.Services.NotificationActionService;
 import com.moutamid.meusom.models.SongModel;
-import com.moutamid.meusom.models.Track;
 
 public class CreateNotification {
 
     public static final String CHANNEL_ID = "channel1";
-
     public static final String ACTION_PREVIUOS = "actionprevious";
     public static final String ACTION_PLAY = "actionplay";
     public static final String ACTION_NEXT = "actionnext";
+    private static final int NOTIFICATION_ID = 0;
 
     public static Notification notification;
 
-    public static void createNotification(Context context, SongModel track, int playbutton, int pos, int size) {
+    public static void createNotification(Context context, SongModel track, int playbutton, int pos, int size, MediaPlayer mp) {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
             NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
             MediaSessionCompat mediaSessionCompat = new MediaSessionCompat(context, "tag");
 
-            Bitmap icon = BitmapFactory.decodeResource(context.getResources(), R.drawable.music);
+            mediaSessionCompat.setActive(true);
+
+            MediaSessionCompat.Token token = mediaSessionCompat.getSessionToken();
+
+            mediaSessionCompat.setMetadata(
+                    new MediaMetadataCompat.Builder()
+                            .putString(MediaMetadata.METADATA_KEY_TITLE, track.getSongName())
+                            .putString(MediaMetadata.METADATA_KEY_ARTIST, track.getSongAlbumName())
+                            .putLong(MediaMetadata.METADATA_KEY_DURATION, mp.getDuration())
+                            .build()
+            );
+
+
+
+            mediaSessionCompat.setPlaybackState(
+                    new PlaybackStateCompat.Builder()
+                            .setState(
+                                    PlaybackStateCompat.STATE_PLAYING,
+                                    mp.getCurrentPosition(),
+                                    100
+                            )
+                            .setActions(PlaybackStateCompat.ACTION_SEEK_TO)
+                            .build()
+            );
+
+            Bitmap icon = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_icon_launcher);
 
             PendingIntent pendingIntentPrevious;
             int drw_previous;
@@ -76,7 +101,7 @@ public class CreateNotification {
 
             //create notification
             notification = new NotificationCompat.Builder(context, CHANNEL_ID)
-                    .setSmallIcon(R.drawable.ic_home_img)
+                    .setSmallIcon(R.drawable.ic_home_img).setOngoing(true)
                     .setContentTitle(track.getSongName())
                     .setContentText(track.getSongAlbumName())
                     .setLargeIcon(icon)
@@ -85,7 +110,10 @@ public class CreateNotification {
                     .addAction(drw_previous, "Previous", pendingIntentPrevious)
                     .addAction(playbutton, "Play", pendingIntentPlay)
                     .addAction(drw_next, "Next", pendingIntentNext)
-                    .setPriority(NotificationCompat.PRIORITY_LOW)
+                    .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
+                            .setShowActionsInCompactView(0, 1, 2)
+                            .setMediaSession(token))
+                    .setPriority(NotificationCompat.PRIORITY_LOW).setCategory(Notification.CATEGORY_SERVICE)
                     .build();
 
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {

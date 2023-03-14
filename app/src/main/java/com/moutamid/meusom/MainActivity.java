@@ -3,29 +3,22 @@ package com.moutamid.meusom;
 import static com.bumptech.glide.Glide.with;
 import static com.bumptech.glide.load.engine.DiskCacheStrategy.DATA;
 import static com.moutamid.meusom.R.color.lightBlack;
-import static com.moutamid.meusom.R.color.transparent;
 
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.animation.Animator;
-import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
@@ -38,7 +31,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,11 +47,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.fxn.stash.Stash;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
 import com.moutamid.meusom.Services.OnClearFromRecentService;
-import com.moutamid.meusom.models.SongIDModel;
 import com.moutamid.meusom.models.SongModel;
 import com.moutamid.meusom.models.Track;
 import com.moutamid.meusom.utilis.Constants;
@@ -71,9 +59,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import at.huber.youtubeExtractor.VideoMeta;
-import at.huber.youtubeExtractor.YouTubeExtractor;
-import at.huber.youtubeExtractor.YtFile;
 import musicplayer.Utilities;
 
 public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCompletionListener, SeekBar.OnSeekBarChangeListener, AudioManager.OnAudioFocusChangeListener, Playable, ServiceConnection {
@@ -866,7 +851,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
             // Updating progress bar
             updateProgressBar();
             CreateNotification.createNotification(MainActivity.this, songsList.get(songIndex),
-                    R.drawable.ic_pause_black_24dp, songIndex, songsList.size()-1);
+                    R.drawable.ic_pause_black_24dp, songIndex, songsList.size()-1, mp);
         } catch (Exception e) {
             e.printStackTrace();
             Log.i(TAG, "playSong: EXCEPTION: " + e.getMessage());
@@ -914,12 +899,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
             }
         }
     }
-
-    private ActivityResultLauncher<String> request_result_launcher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGraned -> {
-        if (isGraned){
-
-        }
-    });
 
     private boolean checkIfAdsAreWatched() {
         //TODO: THESE BELOW LINES SHOULD NOT BE COMMENTED
@@ -977,6 +956,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
 
             // Running this thread after 100 milliseconds
             mHandler.postDelayed(this, 100);
+            /*CreateNotification.createNotification(MainActivity.this, songsList.get(currentSongIndex),
+                    R.drawable.ic_pause_black_24dp, currentSongIndex, songsList.size()-1, mp);*/
         }
     };
 
@@ -1011,8 +992,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
         mp.seekTo(currentPosition);
 
         // update timer progress again
-
         updateProgressBar();
+
     }
 
     /**
@@ -1242,7 +1223,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
     public void onTrackPrevious() {
         --currentSongIndex;
         CreateNotification.createNotification(MainActivity.this, songsList.get(currentSongIndex),
-                R.drawable.ic_pause_black_24dp, currentSongIndex, songsList.size()-1);
+                R.drawable.ic_pause_black_24dp, currentSongIndex, songsList.size()-1, mp);
         playSong(currentSongIndex);
     }
 
@@ -1251,20 +1232,24 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
         if(isPlaying){
             mp.pause();
             CreateNotification.createNotification(MainActivity.this, songsList.get(currentSongIndex),
-                    R.drawable.ic_play_arrow_black_24dp, currentSongIndex, songsList.size()-1);
+                    R.drawable.ic_play_arrow_black_24dp, currentSongIndex, songsList.size()-1, mp);
             isPlaying = false;
+            btnPlay.setImageResource(R.drawable.play);
+            btnPlaySmall.setImageResource(R.drawable.play);
         } else {
             mp.start();
             CreateNotification.createNotification(MainActivity.this, songsList.get(currentSongIndex),
-                    R.drawable.ic_pause_black_24dp, currentSongIndex, songsList.size()-1);
+                    R.drawable.ic_pause_black_24dp, currentSongIndex, songsList.size()-1, mp);
             isPlaying = true;
+            btnPlay.setImageResource(R.drawable.pause);
+            btnPlaySmall.setImageResource(R.drawable.pause);
         }
     }
 
     @Override
     public void onTrackPause() {
         CreateNotification.createNotification(MainActivity.this, songsList.get(currentSongIndex),
-                R.drawable.ic_pause_black_24dp, currentSongIndex, songsList.size()-1);
+                R.drawable.ic_pause_black_24dp, currentSongIndex, songsList.size()-1, mp);
         isPlaying = false;
         mp.pause();
     }
@@ -1273,7 +1258,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
     public void onTrackNext() {
         ++currentSongIndex;
         CreateNotification.createNotification(MainActivity.this, songsList.get(currentSongIndex),
-                R.drawable.ic_pause_black_24dp, currentSongIndex, songsList.size()-1);
+                R.drawable.ic_pause_black_24dp, currentSongIndex, songsList.size()-1, mp);
         playSong(currentSongIndex);
     }
 
