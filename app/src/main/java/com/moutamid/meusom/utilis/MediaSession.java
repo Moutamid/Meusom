@@ -1,5 +1,6 @@
 package com.moutamid.meusom.utilis;
 
+import android.content.Context;
 import android.media.browse.MediaBrowser;
 import android.os.Bundle;
 import android.service.media.MediaBrowserService;
@@ -15,12 +16,23 @@ public class MediaSession extends MediaBrowserService {
     private static final String MY_MEDIA_ROOT_ID = "";
     private static final String MY_EMPTY_ROOT_ID = "";
 
+    Context context;
+    String tag;
+
+    public MediaSession() {
+    }
+
+    public MediaSession(Context context, String tag) {
+        this.context = context;
+        this.tag = tag;
+    }
+
     @Nullable
     @Override
     public BrowserRoot onGetRoot(@NonNull String clientPackageName, int clientUid, @Nullable Bundle rootHints) {
         // Verify that the specified package is SystemUI. You'll need to write your
         // own logic to do this.
-        /*if (isSystem(clientPackageName, clientUid)) {
+        if (isSystem(clientPackageName, clientUid)) {
             if (rootHints != null) {
                 if (rootHints.getBoolean(BrowserRoot.EXTRA_RECENT)) {
                     // Return a tree with a single playable media item for resumption.
@@ -31,9 +43,13 @@ public class MediaSession extends MediaBrowserService {
             }
             // You can return your normal tree if the EXTRA_RECENT flag is not present.
             return new BrowserRoot(MY_MEDIA_ROOT_ID, null);
-        }*/
+        }
         // Return an empty tree to disallow browsing.
         return new BrowserRoot(MY_EMPTY_ROOT_ID, null);
+    }
+
+    private boolean isSystem(String clientPackageName, int clientUid) {
+        return true;
     }
 
     @Override

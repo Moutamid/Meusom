@@ -26,6 +26,11 @@ import java.util.regex.Pattern;
 
 public class Constants {
 
+    public static final String CHANNEL_ID = "channel1";
+    public static final String ACTION_PREVIUOS = "actionprevious";
+    public static final String ACTION_PLAY = "actionplay";
+    public static final String ACTION_NEXT = "actionnext";
+
     @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     public static final String[] permissions13 = {
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -34,12 +39,12 @@ public class Constants {
             Manifest.permission.READ_MEDIA_VIDEO,
             Manifest.permission.READ_MEDIA_IMAGES,
             Manifest.permission.POST_NOTIFICATIONS,
+            Manifest.permission.MEDIA_CONTENT_CONTROL,
             Manifest.permission.READ_MEDIA_AUDIO
     };
 
     public static final String[] permissions = {
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.POST_NOTIFICATIONS,
             Manifest.permission.READ_EXTERNAL_STORAGE
     };
     public static final int[] audio_iTag = {141,140,171,251,250,249,139,37,6,5};

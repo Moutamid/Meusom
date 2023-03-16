@@ -2,6 +2,7 @@ package com.moutamid.meusom;
 
 import static com.bumptech.glide.Glide.with;
 import static com.bumptech.glide.load.engine.DiskCacheStrategy.DATA;
+import static com.moutamid.meusom.R.color.brown;
 import static com.moutamid.meusom.R.color.lightBlack;
 
 import androidx.annotation.NonNull;
@@ -31,6 +32,8 @@ import android.media.AudioManager;
 import android.media.MediaMetadata;
 import android.media.MediaPlayer;
 import android.media.audiofx.AudioEffect;
+import android.media.session.MediaSession;
+import android.media.session.PlaybackState;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -50,6 +53,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -119,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
     AudioManager am;
     // int result;
     MediaSessionCompat mediaSessionCompat;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -886,7 +891,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (
                     (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_MEDIA_VIDEO) == PackageManager.PERMISSION_GRANTED) &&
-                    (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED)
+                            (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED)
             ) {
                 return true;
             } else {
@@ -896,6 +901,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
                 shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_AUDIO);
                 shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_VIDEO);
                 shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_IMAGES);
+                shouldShowRequestPermissionRationale(Manifest.permission.MEDIA_CONTENT_CONTROL);
                 shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS);
 
                 requestPermissions(Constants.permissions13, 1);
@@ -907,7 +913,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
 //        Log.d(TAGG, "isStoragePermissionGranted: ");
             if (
                     (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) &&
-                    (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
+                            (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
             ) {
                 return true;
             } else {
@@ -916,7 +922,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
                 shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE);
 
                 requestPermissions(Constants.permissions, 1);
-               // request_result_launcher.launch(Constants.permissions);
+                // request_result_launcher.launch(Constants.permissions);
                 /* ActivityCompat.requestPermissions(this, Constants.permissions, 1);*/
                 return false;
             }
@@ -1242,7 +1248,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
     }
 
 
-
     @Override
     public void onTrackPrevious() {
         --currentSongIndex;
@@ -1252,7 +1257,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
 
     @Override
     public void onTrackPlay() {
-        if(isPlaying){
+        if (isPlaying) {
             mp.pause();
             isPlaying = false;
             createNotification(R.drawable.ic_play_arrow_black_24dp, currentSongIndex, mp.getCurrentPosition());
@@ -1283,15 +1288,12 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
     }
 
     public Notification notification;
-    public static final String CHANNEL_ID = "channel1";
-    public static final String ACTION_PREVIUOS = "actionprevious";
-    public static final String ACTION_PLAY = "actionplay";
-    public static final String ACTION_NEXT = "actionnext";
+
     private static final int NOTIFICATION_ID = 0;
 
     @SuppressLint("UnspecifiedImmutableFlag")
     public void createNotification(int playbutton, int pos, long p) {
-        int size = songsList.size()-1;
+        int size = songsList.size() - 1;
         String songName = songsList.get(pos).getSongName();
         String artist = songsList.get(pos).getSongAlbumName();
 
@@ -1312,6 +1314,41 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
                     isPlaying = true;
                     createNotification(R.drawable.ic_pause_black_24dp, currentSongIndex, p);
                 }
+
+                @Override
+                public void onPlay() {
+                    super.onPlay();
+                    onTrackPlay();
+                }
+
+                @Override
+                public void onPause() {
+                    super.onPause();
+                    onTrackPlay();
+                }
+
+                @Override
+                public void onSkipToPrevious() {
+                    super.onSkipToPrevious();
+                    onTrackPrevious();
+                }
+
+                @Override
+                public void onSkipToNext() {
+                    super.onSkipToNext();
+                    onTrackNext();
+                }
+
+                @Override
+                public void onRewind() {
+                    super.onRewind();
+                    onTrackPrevious();
+                }
+
+                @Override
+                public void onCustomAction(String action, Bundle extras) {
+                    super.onCustomAction(action, extras);
+                }
             });
 
 
@@ -1324,23 +1361,22 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
                             .build()
             );
 
-
+            PlaybackStateCompat playbackStateCompat = new PlaybackStateCompat.Builder()
+                    .setState(
+                            isPlaying ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED,
+                            p,
+                            1f
+                    )
+                    .setActions(PlaybackStateCompat.ACTION_PLAY |
+                            PlaybackStateCompat.ACTION_PAUSE |
+                            PlaybackStateCompat.ACTION_SKIP_TO_NEXT |
+                            PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
+                            PlaybackStateCompat.ACTION_SEEK_TO |
+                            PlaybackStateCompat.ACTION_PLAY_PAUSE).build();
 
 
             mediaSessionCompat.setPlaybackState(
-                    new PlaybackStateCompat.Builder()
-                            .setState(
-                                    isPlaying ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED,
-                                    p,
-                                    1f
-                            )
-                            .setActions(PlaybackStateCompat.ACTION_PLAY |
-                                    PlaybackStateCompat.ACTION_PAUSE |
-                                    PlaybackStateCompat.ACTION_SKIP_TO_NEXT |
-                                    PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
-                                    PlaybackStateCompat.ACTION_SEEK_TO |
-                                    PlaybackStateCompat.ACTION_PLAY_PAUSE)
-                            .build()
+                    playbackStateCompat
             );
 
             Bitmap icon = BitmapFactory.decodeResource(context.getResources(), R.drawable.music);
@@ -1355,10 +1391,10 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
                 drw_previous = 0;
             } else {
                 Intent intentPrevious = new Intent(context, NotificationActionService.class)
-                        .setAction(ACTION_PREVIUOS);
+                        .setAction(Constants.ACTION_PREVIUOS);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     pendingIntentPrevious = PendingIntent.getBroadcast(context, 0,
-                            intentPrevious, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+                            intentPrevious, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
                 } else {
                     pendingIntentPrevious = PendingIntent.getBroadcast(context, 0,
                             intentPrevious, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -1367,11 +1403,11 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
             }
 
             Intent intentPlay = new Intent(context, NotificationActionService.class)
-                    .setAction(ACTION_PLAY);
-            PendingIntent pendingIntentPlay = null; //PendingIntent.FLAG_UPDATE_CURRENT
+                    .setAction(Constants.ACTION_PLAY);
+            PendingIntent pendingIntentPlay; //PendingIntent.FLAG_UPDATE_CURRENT
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 pendingIntentPlay = PendingIntent.getBroadcast(context, 0,
-                        intentPlay, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+                        intentPlay, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
             } else {
                 pendingIntentPlay = PendingIntent.getBroadcast(context, 0,
                         intentPlay, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -1384,10 +1420,10 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
                 drw_next = 0;
             } else {
                 Intent intentNext = new Intent(context, NotificationActionService.class)
-                        .setAction(ACTION_NEXT);
+                        .setAction(Constants.ACTION_NEXT);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     pendingIntentNext = PendingIntent.getBroadcast(context, 0,
-                            intentNext, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+                            intentNext, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
                 } else {
                     pendingIntentNext = PendingIntent.getBroadcast(context, 0,
                             intentNext, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -1396,7 +1432,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
             }
 
             //create notification
-            notification = new NotificationCompat.Builder(context, CHANNEL_ID)
+            notification = new NotificationCompat.Builder(context, Constants.CHANNEL_ID)
                     .setSmallIcon(R.drawable.ic_home_img)
                     .setOngoing(true)
                     .setContentTitle(songName)
@@ -1426,8 +1462,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
 
         }
     }
-
-
 
 
 }

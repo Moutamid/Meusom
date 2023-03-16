@@ -42,7 +42,7 @@ public class App extends Application {
 
     private void createNotification() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            NotificationChannel notificationChannel = new NotificationChannel(CreateNotification.CHANNEL_ID,
+            NotificationChannel notificationChannel = new NotificationChannel(Constants.CHANNEL_ID,
                     "Meusom Music", NotificationManager.IMPORTANCE_HIGH);
             notificationChannel.setDescription("Music Chanel");
             NotificationManager manager = getSystemService(NotificationManager.class);
