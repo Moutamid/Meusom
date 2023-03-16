@@ -37,6 +37,8 @@ public class CreateNotification {
 
     public static Notification notification;
 
+    /*
+
     public static void createNotification(Context context, SongModel track, int playbutton, int pos, int size, MediaPlayer mp) {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -145,4 +147,6 @@ public class CreateNotification {
 
         }
     }
+
+    */
 }
