@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.animation.Animator;
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -1286,6 +1287,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
     public static final String ACTION_NEXT = "actionnext";
     private static final int NOTIFICATION_ID = 0;
 
+    @SuppressLint("UnspecifiedImmutableFlag")
     public void createNotification(int playbutton, int pos, long p) {
         int size = songsList.size()-1;
         String songName = songsList.get(pos).getSongName();
@@ -1342,7 +1344,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
             Bitmap icon = BitmapFactory.decodeResource(context.getResources(), R.drawable.music);
 
             Intent intent = new Intent(context, MainActivity.class);
-            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE);
 
             PendingIntent pendingIntentPrevious;
             int drw_previous;
@@ -1352,15 +1354,26 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
             } else {
                 Intent intentPrevious = new Intent(context, NotificationActionService.class)
                         .setAction(ACTION_PREVIUOS);
-                pendingIntentPrevious = PendingIntent.getBroadcast(context, 0,
-                        intentPrevious, PendingIntent.FLAG_UPDATE_CURRENT);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    pendingIntentPrevious = PendingIntent.getBroadcast(context, 0,
+                            intentPrevious, PendingIntent.FLAG_MUTABLE);
+                } else {
+                    pendingIntentPrevious = PendingIntent.getBroadcast(context, 0,
+                            intentPrevious, PendingIntent.FLAG_UPDATE_CURRENT);
+                }
                 drw_previous = R.drawable.ic_skip_previous_black_24dp;
             }
 
             Intent intentPlay = new Intent(context, NotificationActionService.class)
                     .setAction(ACTION_PLAY);
-            PendingIntent pendingIntentPlay = PendingIntent.getBroadcast(context, 0,
-                    intentPlay, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent pendingIntentPlay = null; //PendingIntent.FLAG_UPDATE_CURRENT
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                pendingIntentPlay = PendingIntent.getBroadcast(context, 0,
+                        intentPlay, PendingIntent.FLAG_MUTABLE);
+            } else {
+                pendingIntentPlay = PendingIntent.getBroadcast(context, 0,
+                        intentPlay, PendingIntent.FLAG_UPDATE_CURRENT);
+            }
 
             PendingIntent pendingIntentNext;
             int drw_next;
@@ -1370,8 +1383,13 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
             } else {
                 Intent intentNext = new Intent(context, NotificationActionService.class)
                         .setAction(ACTION_NEXT);
-                pendingIntentNext = PendingIntent.getBroadcast(context, 0,
-                        intentNext, PendingIntent.FLAG_UPDATE_CURRENT);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    pendingIntentNext = PendingIntent.getBroadcast(context, 0,
+                            intentNext, PendingIntent.FLAG_MUTABLE);
+                } else {
+                    pendingIntentNext = PendingIntent.getBroadcast(context, 0,
+                            intentNext, PendingIntent.FLAG_UPDATE_CURRENT);
+                }
                 drw_next = R.drawable.ic_skip_next_black_24dp;
             }
 
