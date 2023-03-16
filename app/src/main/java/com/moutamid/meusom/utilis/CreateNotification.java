@@ -11,15 +11,18 @@ import android.graphics.BitmapFactory;
 import android.media.MediaMetadata;
 import android.media.MediaPlayer;
 import android.os.Build;
+import android.os.SystemClock;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.moutamid.meusom.MainActivity;
 import com.moutamid.meusom.R;
 import com.moutamid.meusom.Services.NotificationActionService;
 import com.moutamid.meusom.models.SongModel;
@@ -39,34 +42,18 @@ public class CreateNotification {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
             NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
-            MediaSessionCompat mediaSessionCompat = new MediaSessionCompat(context, "tag");
+            MediaSessionCompat mediaSessionCompat = new MediaSessionCompat(context, "Meusom");
 
             mediaSessionCompat.setActive(true);
 
             MediaSessionCompat.Token token = mediaSessionCompat.getSessionToken();
 
-            mediaSessionCompat.setMetadata(
-                    new MediaMetadataCompat.Builder()
-                            .putString(MediaMetadata.METADATA_KEY_TITLE, track.getSongName())
-                            .putString(MediaMetadata.METADATA_KEY_ARTIST, track.getSongAlbumName())
-                            .putLong(MediaMetadata.METADATA_KEY_DURATION, mp.getDuration())
-                            .build()
-            );
 
 
+            Bitmap icon = BitmapFactory.decodeResource(context.getResources(), R.drawable.music);
 
-            mediaSessionCompat.setPlaybackState(
-                    new PlaybackStateCompat.Builder()
-                            .setState(
-                                    PlaybackStateCompat.STATE_PLAYING,
-                                    mp.getCurrentPosition(),
-                                    100
-                            )
-                            .setActions(PlaybackStateCompat.ACTION_SEEK_TO)
-                            .build()
-            );
-
-            Bitmap icon = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_icon_launcher);
+            Intent intent = new Intent(context, MainActivity.class);
+            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
 
             PendingIntent pendingIntentPrevious;
             int drw_previous;
@@ -101,7 +88,8 @@ public class CreateNotification {
 
             //create notification
             notification = new NotificationCompat.Builder(context, CHANNEL_ID)
-                    .setSmallIcon(R.drawable.ic_home_img).setOngoing(true)
+                    .setSmallIcon(R.drawable.ic_home_img)
+                    .setOngoing(true)
                     .setContentTitle(track.getSongName())
                     .setContentText(track.getSongAlbumName())
                     .setLargeIcon(icon)
@@ -113,13 +101,46 @@ public class CreateNotification {
                     .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
                             .setShowActionsInCompactView(0, 1, 2)
                             .setMediaSession(token))
-                    .setPriority(NotificationCompat.PRIORITY_LOW).setCategory(Notification.CATEGORY_SERVICE)
+                    .setContentIntent(pendingIntent)
+                    .setAutoCancel(true)
+                    .setPriority(NotificationCompat.PRIORITY_LOW)
+                    .setCategory(Notification.CATEGORY_SERVICE)
                     .build();
+
+
+            mediaSessionCompat.setMetadata(
+                    new MediaMetadataCompat.Builder()
+                            .putString(MediaMetadata.METADATA_KEY_TITLE, track.getSongName())
+                            .putString(MediaMetadata.METADATA_KEY_ARTIST, track.getSongAlbumName())
+                            .putLong(MediaMetadata.METADATA_KEY_DURATION, mp.getDuration())
+                            .build()
+            );
+
+
+            mediaSessionCompat.setPlaybackState(
+                    new PlaybackStateCompat.Builder()
+                            .setState(
+                                    PlaybackStateCompat.STATE_PLAYING,
+                                    mp.getCurrentPosition(),
+                                    SystemClock.elapsedRealtime()
+                            )
+                            .setBufferedPosition(mp.getDuration())
+                            .setActions(PlaybackStateCompat.ACTION_PLAY |
+                                    PlaybackStateCompat.ACTION_PAUSE |
+                                    PlaybackStateCompat.ACTION_SKIP_TO_NEXT |
+                                    PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
+                                    PlaybackStateCompat.ACTION_SEEK_TO |
+                                    PlaybackStateCompat.ACTION_PLAY_PAUSE)
+                            .build()
+            );
+
 
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                // ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1);
                 return;
             }
+
+
             notificationManagerCompat.notify(0, notification);
 
         }

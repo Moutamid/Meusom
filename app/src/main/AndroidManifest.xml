@@ -11,6 +11,8 @@
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    <uses-permission android:name="android.permission.MEDIA_CONTENT_CONTROL"
+        tools:ignore="ProtectedPermissions" />
 
     <application
         android:name=".utilis.App"
@@ -89,8 +91,9 @@
         </activity>
         <activity
             android:name=".MainActivity"
-            android:configChanges="uiMode|keyboardHidden|orientation"
+            android:configChanges="uiMode|keyboardHidden|orientation|screenSize"
             android:exported="false"
+            android:launchMode="singleTop"
             android:screenOrientation="fullSensor" />
         <activity
             android:name="com.facebook.ads.AudienceNetworkActivity"
@@ -104,9 +107,9 @@
             android:name="com.google.android.gms.ads.AD_MANAGER_APP"
             android:value="true" />
 
-        <service
-            android:name=".utilis.YourService"
-            android:enabled="true" />
+        <service android:name=".utilis.YourService" android:enabled="true" />
+
+        <service android:name=".utilis.MediaSession" android:enabled="true" />
 
         <receiver
             android:name=".utilis.Restarter"

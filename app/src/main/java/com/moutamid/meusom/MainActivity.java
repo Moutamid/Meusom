@@ -4,10 +4,11 @@ import static com.bumptech.glide.Glide.with;
 import static com.bumptech.glide.load.engine.DiskCacheStrategy.DATA;
 import static com.moutamid.meusom.R.color.lightBlack;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,13 +16,18 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.Manifest;
 import android.animation.Animator;
 import android.app.Dialog;
+import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.AudioManager;
+import android.media.MediaMetadata;
 import android.media.MediaPlayer;
 import android.media.audiofx.AudioEffect;
 import android.net.Uri;
@@ -29,7 +35,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.SystemClock;
+import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,11 +56,11 @@ import com.bumptech.glide.request.RequestOptions;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.fxn.stash.Stash;
+import com.moutamid.meusom.Services.NotificationActionService;
 import com.moutamid.meusom.Services.OnClearFromRecentService;
 import com.moutamid.meusom.models.SongModel;
 import com.moutamid.meusom.models.Track;
 import com.moutamid.meusom.utilis.Constants;
-import com.moutamid.meusom.utilis.CreateNotification;
 import com.moutamid.meusom.utilis.Playable;
 import com.moutamid.meusom.utilis.Utils;
 
@@ -127,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
 
         Intent i = new Intent(this, OnClearFromRecentService.class);
         bindService(i, this, BIND_AUTO_CREATE);
-       // startService(i);
+        //startService(i);
 
         //am = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
 
@@ -163,6 +172,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
                 startActivity(Intent.createChooser(intent, "Complete action using"));
                 if (mp.isPlaying()) {
                     mp.pause();
+                    createNotification(R.drawable.ic_play_arrow_black_24dp, currentSongIndex, mp.getCurrentPosition());
+                    isPlaying = false;
                 }
             } else {
                 Toast.makeText(context, "No video found related to this music", Toast.LENGTH_SHORT).show();
@@ -205,6 +216,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
                 if (mp.isPlaying()) {
                     if (mp != null) {
                         mp.pause();
+                        createNotification(R.drawable.ic_play_arrow_black_24dp, currentSongIndex, mp.getCurrentPosition());
+                        isPlaying = false;
                         // Changing button image to play button
                         btnPlay.setImageResource(R.drawable.play);
                         btnPlaySmall.setImageResource(R.drawable.play);
@@ -213,6 +226,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
                     // Resume song
                     if (mp != null) {
                         mp.start();
+                        createNotification(R.drawable.ic_pause_black_24dp, currentSongIndex, mp.getCurrentPosition());
+                        isPlaying = true;
                         // Changing button image to pause button
                         btnPlay.setImageResource(R.drawable.pause);
                         btnPlaySmall.setImageResource(R.drawable.pause);
@@ -241,6 +256,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
                 if (mp.isPlaying()) {
                     if (mp != null) {
                         mp.pause();
+                        createNotification(R.drawable.ic_play_arrow_black_24dp, currentSongIndex, mp.getCurrentPosition());
+                        isPlaying = false;
                         // Changing button image to play button
                         btnPlay.setImageResource(R.drawable.play);
                         btnPlaySmall.setImageResource(R.drawable.play);
@@ -256,6 +273,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
                             playSong(currentSongIndex);
                             //currentSongIndex = 0;
                         }
+                        createNotification(R.drawable.ic_pause_black_24dp, currentSongIndex, mp.getCurrentPosition());
+                        isPlaying = true;
                         // Changing button image to pause button
                         btnPlay.setImageResource(R.drawable.pause);
                         btnPlaySmall.setImageResource(R.drawable.pause);
@@ -850,8 +869,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
 
             // Updating progress bar
             updateProgressBar();
-            CreateNotification.createNotification(MainActivity.this, songsList.get(songIndex),
-                    R.drawable.ic_pause_black_24dp, songIndex, songsList.size()-1, mp);
+            isPlaying = true;
+            createNotification(R.drawable.ic_pause_black_24dp, songIndex, mp.getCurrentPosition());
         } catch (Exception e) {
             e.printStackTrace();
             Log.i(TAG, "playSong: EXCEPTION: " + e.getMessage());
@@ -873,6 +892,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
                 shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE);
                 shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_AUDIO);
                 shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_VIDEO);
+                shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_IMAGES);
                 shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS);
 
                 requestPermissions(Constants.permissions13, 1);
@@ -956,8 +976,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
 
             // Running this thread after 100 milliseconds
             mHandler.postDelayed(this, 100);
-            /*CreateNotification.createNotification(MainActivity.this, songsList.get(currentSongIndex),
-                    R.drawable.ic_pause_black_24dp, currentSongIndex, songsList.size()-1, mp);*/
+            //createNotification(R.drawable.ic_pause_black_24dp, currentSongIndex);
         }
     };
 
@@ -990,7 +1009,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
 
         // forward or backward to certain seconds
         mp.seekTo(currentPosition);
-
+        createNotification(R.drawable.ic_pause_black_24dp, currentSongIndex, currentPosition);
         // update timer progress again
         updateProgressBar();
 
@@ -1037,7 +1056,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
         Log.d(TAG, "onDestroy: ");
         mHandler.removeCallbacks(mUpdateTimeTask);
         mp.release();
-
+        unbindService(this);
        /* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             notificationManager.cancelAll();
         }*/
@@ -1046,7 +1065,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
     @Override
     protected void onPause() {
         super.onPause();
-        //unbindService(this);
+
     }
 
     //--------------------------------------------------------------------------------
@@ -1219,28 +1238,27 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
         }
     }
 
+
+
     @Override
     public void onTrackPrevious() {
         --currentSongIndex;
-        CreateNotification.createNotification(MainActivity.this, songsList.get(currentSongIndex),
-                R.drawable.ic_pause_black_24dp, currentSongIndex, songsList.size()-1, mp);
         playSong(currentSongIndex);
+        createNotification(R.drawable.ic_pause_black_24dp, currentSongIndex, mp.getCurrentPosition());
     }
 
     @Override
     public void onTrackPlay() {
         if(isPlaying){
             mp.pause();
-            CreateNotification.createNotification(MainActivity.this, songsList.get(currentSongIndex),
-                    R.drawable.ic_play_arrow_black_24dp, currentSongIndex, songsList.size()-1, mp);
             isPlaying = false;
+            createNotification(R.drawable.ic_play_arrow_black_24dp, currentSongIndex, mp.getCurrentPosition());
             btnPlay.setImageResource(R.drawable.play);
             btnPlaySmall.setImageResource(R.drawable.play);
         } else {
             mp.start();
-            CreateNotification.createNotification(MainActivity.this, songsList.get(currentSongIndex),
-                    R.drawable.ic_pause_black_24dp, currentSongIndex, songsList.size()-1, mp);
             isPlaying = true;
+            createNotification(R.drawable.ic_pause_black_24dp, currentSongIndex, mp.getCurrentPosition());
             btnPlay.setImageResource(R.drawable.pause);
             btnPlaySmall.setImageResource(R.drawable.pause);
         }
@@ -1248,19 +1266,148 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
 
     @Override
     public void onTrackPause() {
-        CreateNotification.createNotification(MainActivity.this, songsList.get(currentSongIndex),
-                R.drawable.ic_pause_black_24dp, currentSongIndex, songsList.size()-1, mp);
         isPlaying = false;
+        createNotification(R.drawable.ic_pause_black_24dp, currentSongIndex, mp.getCurrentPosition());
+
         mp.pause();
     }
 
     @Override
     public void onTrackNext() {
         ++currentSongIndex;
-        CreateNotification.createNotification(MainActivity.this, songsList.get(currentSongIndex),
-                R.drawable.ic_pause_black_24dp, currentSongIndex, songsList.size()-1, mp);
         playSong(currentSongIndex);
+        createNotification(R.drawable.ic_pause_black_24dp, currentSongIndex, mp.getCurrentPosition());
     }
+
+    public Notification notification;
+    public static final String CHANNEL_ID = "channel1";
+    public static final String ACTION_PREVIUOS = "actionprevious";
+    public static final String ACTION_PLAY = "actionplay";
+    public static final String ACTION_NEXT = "actionnext";
+    private static final int NOTIFICATION_ID = 0;
+
+    public void createNotification(int playbutton, int pos, long p) {
+        int size = songsList.size()-1;
+        String songName = songsList.get(pos).getSongName();
+        String artist = songsList.get(pos).getSongAlbumName();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+            NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
+            MediaSessionCompat mediaSessionCompat = new MediaSessionCompat(context, "Meusom");
+
+            mediaSessionCompat.setActive(true);
+
+            MediaSessionCompat.Token token = mediaSessionCompat.getSessionToken();
+
+            mediaSessionCompat.setCallback(new MediaSessionCompat.Callback() {
+                @Override
+                public void onSeekTo(long p) {
+                    super.onSeekTo(p);
+                    mp.seekTo((int) p);
+                    isPlaying = true;
+                    createNotification(R.drawable.ic_pause_black_24dp, currentSongIndex, p);
+                }
+            });
+
+
+            mediaSessionCompat.setMetadata(
+                    new MediaMetadataCompat.Builder()
+                            .putString(MediaMetadata.METADATA_KEY_ALBUM_ART_URI, utils.getSongPath(songName))
+                            .putString(MediaMetadata.METADATA_KEY_TITLE, songName)
+                            .putString(MediaMetadata.METADATA_KEY_ARTIST, artist)
+                            .putLong(MediaMetadata.METADATA_KEY_DURATION, mp.getDuration())
+                            .build()
+            );
+
+
+
+
+            mediaSessionCompat.setPlaybackState(
+                    new PlaybackStateCompat.Builder()
+                            .setState(
+                                    isPlaying ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED,
+                                    p,
+                                    1f
+                            )
+                            .setActions(PlaybackStateCompat.ACTION_PLAY |
+                                    PlaybackStateCompat.ACTION_PAUSE |
+                                    PlaybackStateCompat.ACTION_SKIP_TO_NEXT |
+                                    PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
+                                    PlaybackStateCompat.ACTION_SEEK_TO |
+                                    PlaybackStateCompat.ACTION_PLAY_PAUSE)
+                            .build()
+            );
+
+            Bitmap icon = BitmapFactory.decodeResource(context.getResources(), R.drawable.music);
+
+            Intent intent = new Intent(context, MainActivity.class);
+            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+
+            PendingIntent pendingIntentPrevious;
+            int drw_previous;
+            if (pos == 0) {
+                pendingIntentPrevious = null;
+                drw_previous = 0;
+            } else {
+                Intent intentPrevious = new Intent(context, NotificationActionService.class)
+                        .setAction(ACTION_PREVIUOS);
+                pendingIntentPrevious = PendingIntent.getBroadcast(context, 0,
+                        intentPrevious, PendingIntent.FLAG_UPDATE_CURRENT);
+                drw_previous = R.drawable.ic_skip_previous_black_24dp;
+            }
+
+            Intent intentPlay = new Intent(context, NotificationActionService.class)
+                    .setAction(ACTION_PLAY);
+            PendingIntent pendingIntentPlay = PendingIntent.getBroadcast(context, 0,
+                    intentPlay, PendingIntent.FLAG_UPDATE_CURRENT);
+
+            PendingIntent pendingIntentNext;
+            int drw_next;
+            if (pos == size) {
+                pendingIntentNext = null;
+                drw_next = 0;
+            } else {
+                Intent intentNext = new Intent(context, NotificationActionService.class)
+                        .setAction(ACTION_NEXT);
+                pendingIntentNext = PendingIntent.getBroadcast(context, 0,
+                        intentNext, PendingIntent.FLAG_UPDATE_CURRENT);
+                drw_next = R.drawable.ic_skip_next_black_24dp;
+            }
+
+            //create notification
+            notification = new NotificationCompat.Builder(context, CHANNEL_ID)
+                    .setSmallIcon(R.drawable.ic_home_img)
+                    .setOngoing(true)
+                    .setContentTitle(songName)
+                    .setContentText(artist)
+                    .setLargeIcon(icon)
+                    .setOnlyAlertOnce(true)//show notification for only first time
+                    .setShowWhen(true)
+                    .addAction(drw_previous, "Previous", pendingIntentPrevious)
+                    .addAction(playbutton, "Play", pendingIntentPlay)
+                    .addAction(drw_next, "Next", pendingIntentNext)
+                    .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
+                            .setShowActionsInCompactView(0, 1, 2)
+                            .setMediaSession(token))
+                    .setContentIntent(pendingIntent)
+                    .setAutoCancel(true)
+                    .setPriority(NotificationCompat.PRIORITY_LOW)
+                    .setCategory(Notification.CATEGORY_SERVICE)
+                    .build();
+
+            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                // ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1);
+                return;
+            }
+
+
+            notificationManagerCompat.notify(0, notification);
+
+        }
+    }
+
+
 
 
 }
