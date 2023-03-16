@@ -133,6 +133,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
 
         Constants.checkApp(this);
 
+        currentSongIndex = utils.getStoredInteger(MainActivity.this, Constants.LAST_SONG_INDEX);
+
         mediaSessionCompat = new MediaSessionCompat(this, "PlayerAudio");
 
         Intent i = new Intent(this, OnClearFromRecentService.class);
@@ -1356,7 +1358,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
                         .setAction(ACTION_PREVIUOS);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     pendingIntentPrevious = PendingIntent.getBroadcast(context, 0,
-                            intentPrevious, PendingIntent.FLAG_MUTABLE);
+                            intentPrevious, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
                 } else {
                     pendingIntentPrevious = PendingIntent.getBroadcast(context, 0,
                             intentPrevious, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -1369,7 +1371,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
             PendingIntent pendingIntentPlay = null; //PendingIntent.FLAG_UPDATE_CURRENT
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 pendingIntentPlay = PendingIntent.getBroadcast(context, 0,
-                        intentPlay, PendingIntent.FLAG_MUTABLE);
+                        intentPlay, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
             } else {
                 pendingIntentPlay = PendingIntent.getBroadcast(context, 0,
                         intentPlay, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -1385,7 +1387,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
                         .setAction(ACTION_NEXT);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     pendingIntentNext = PendingIntent.getBroadcast(context, 0,
-                            intentNext, PendingIntent.FLAG_MUTABLE);
+                            intentNext, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
                 } else {
                     pendingIntentNext = PendingIntent.getBroadcast(context, 0,
                             intentNext, PendingIntent.FLAG_UPDATE_CURRENT);
