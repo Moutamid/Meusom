@@ -15,6 +15,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.maxrave.kotlinyoutubeextractor.State;
+import com.maxrave.kotlinyoutubeextractor.YTExtractor;
 import com.moutamid.meusom.utilis.Constants;
 import com.moutamid.meusom.utilis.Utils;
 
@@ -24,6 +26,11 @@ import java.util.regex.Pattern;
 import at.huber.youtubeExtractor.VideoMeta;
 import at.huber.youtubeExtractor.YouTubeExtractor;
 import at.huber.youtubeExtractor.YtFile;
+import kotlin.Unit;
+import kotlin.coroutines.Continuation;
+import kotlin.coroutines.CoroutineContext;
+import kotlin.coroutines.EmptyCoroutineContext;
+import kotlinx.coroutines.AbstractCoroutine;
 
 public class DownloadActivity extends AppCompatActivity {
     private static final String TAG = "DownloadActivity";
@@ -88,6 +95,7 @@ public class DownloadActivity extends AppCompatActivity {
         if (TextUtils.isEmpty(Constants.getVideoId(url))) {
             editText.setError("Wrong url!");
         } else {
+            Log.d(TAG, "executeDownloadTask: ID :  " + Constants.getVideoId(url));
             progressDialog.show();
             getSong(url);
         }
@@ -95,9 +103,40 @@ public class DownloadActivity extends AppCompatActivity {
 
     @SuppressLint("StaticFieldLeak")
     private void getSong(String videoLink) {
+        Log.d(TAG, "getSong: " + videoLink);
+
+//        YTExtractor ytExtractor = new YTExtractor(this, true, true, 3);
+//        ytExtractor.extract(Constants.getVideoId(videoLink), new Continuation<Unit>() {
+//            @NonNull
+//            @Override
+//            public CoroutineContext getContext() {
+//                return EmptyCoroutineContext.INSTANCE;
+//            }
+//
+//            @Override
+//            public void resumeWith(@NonNull Object o) {
+//                Log.d(TAG, "resumeWith: SUCCESS");
+//                SparseArray<com.maxrave.kotlinyoutubeextractor.YtFile> ytFiles = ytExtractor.getYTFiles();
+//                if (ytFiles != null) {
+//                    for (int atag : Constants.audio_iTag) {
+//                        if (ytFiles.get(atag) != null) {
+//                            YtFile ytFile = ytFiles.valueAt(atag);
+//                            String downloadUrl = ytFile.getUrl();
+//                            Log.d(TAG, "getSong: DOWNLOAD : " + downloadUrl);
+//                        }
+//                    }
+//                } else {
+//                    Log.d(TAG, "Failed to extract video information.");
+//                }
+//            }
+//        });
+
+        String link = "https://www.youtube.com/watch?v=" + Constants.getVideoId(videoLink);
+        Log.d(TAG, "link: " + link);
         new YouTubeExtractor(this) {
             @Override
-            public void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta vMeta) {
+            protected void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta vMeta) {
+                Log.d(TAG, "onExtractionComplete");
                 if (ytFiles != null) {
                     String downloadUrl = "";
                     String audioURL = "";
@@ -144,16 +183,18 @@ public class DownloadActivity extends AppCompatActivity {
                             intent.putExtra(Constants.FROM_INTENT, true);
                             startActivity(intent);
                         }
-
                     } catch (Exception e) {
                         e.printStackTrace();
                         Toast.makeText(context, "Video link is not valid", Toast.LENGTH_SHORT).show();
                     }
                     progressDialog.dismiss();
+                } else {
+                    progressDialog.dismiss();
+                    Log.d(TAG, "onExtractionComplete: ytFiles == NULL" );
+                    Toast.makeText(context, "No Video Found", Toast.LENGTH_SHORT).show();
                 }
             }
-        }.extract(videoLink);
-
+        }.extract(link, true, true);
     }
 
     @Override

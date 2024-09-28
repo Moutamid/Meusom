@@ -19,11 +19,11 @@
     <string name="command_hint">enter command here</string>
     <string name="url_error">enter a valid url</string>
     <string name="start">Do the thing</string>
-    <string name="example_command">Example command: --extract-audio --audio-format mp3 -o /sdcard/Download/youtubedl-android/%(title)s.%(ext)s https://www.youtube.com/watch?v=dQw4w9WgXcQ</string>
+    <string name="example_command" translatable="false">Example command: --extract-audio --audio-format mp3 -o /sdcard/Download/youtubedl-android/%(title)s.%(ext)s https://www.youtube.com/watch?v=dQw4w9WgXcQ</string>
     <string name="email">Email</string>
     <string name="meusom">Meusom</string>
     <string name="password">Password</string>
-    <string name="ex_www_youtube_com">ex: www.youtube.com/...</string>
+    <string name="ex_www_youtube_com" translatable="false">ex: www.youtube.com/...</string>
     <string name="insert_the_link">INSERT THE LINK</string>
     <string name="download">DOWNLOAD</string>
     <string name="tracks_included">TRACKS INCLUDED</string>

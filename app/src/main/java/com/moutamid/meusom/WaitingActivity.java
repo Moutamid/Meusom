@@ -52,8 +52,18 @@ public class WaitingActivity extends AppCompatActivity {
                             }
                         }
                         getData();
+                    } else {
+                        Intent intent = new Intent(WaitingActivity.this, MainActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        finish();
                     }
                 }).addOnFailureListener(e -> {
+                    Constants.auth().signOut();
+                    Intent intent = new Intent(WaitingActivity.this, LoginActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
                     Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
 
@@ -128,7 +138,7 @@ public class WaitingActivity extends AppCompatActivity {
                         }
                     }
                 }
-            }.extract(link);
+            }.extract(link, false, false);
 
         }
     }

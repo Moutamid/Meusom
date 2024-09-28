@@ -19,7 +19,7 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.google.android.exoplayer2.C;
+
 import com.moutamid.meusom.utilis.Constants;
 import com.moutamid.meusom.utilis.Utils;
 import com.moutamid.meusom.utilis.YourService;
@@ -158,7 +158,7 @@ public class MainActivity2 extends AppCompatActivity {
                     progressDialog.dismiss();
                 }
             }
-        }.extract(videoLink);
+        }.extract(videoLink,false, false);
 
     }
 

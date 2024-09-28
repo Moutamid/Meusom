@@ -1,33 +1,601 @@
 {
   "project_info": {
-    "project_number": "590418472574",
-    "project_id": "meusom-the-music-player",
-    "storage_bucket": "meusom-the-music-player.appspot.com"
+    "project_number": "347811869733",
+    "firebase_url": "https://recover-projects-default-rtdb.firebaseio.com",
+    "project_id": "recover-projects",
+    "storage_bucket": "recover-projects.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:590418472574:android:616c3db49f81d77d72b22f",
+        "mobilesdk_app_id": "1:347811869733:android:d820358cf35486e8ae3bcc",
         "android_client_info": {
-          "package_name": "com.moutamid.meusom"
+          "package_name": "com.medicine.reminderapp"
         }
       },
       "oauth_client": [
         {
-          "client_id": "590418472574-j083itvsqol6vg010bqglqah7i1u97gr.apps.googleusercontent.com",
+          "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAsYjniQqNoKSXfpCeZmZTre-3DPjCu-Ug"
+          "current_key": "AIzaSyC-KByd3rZ8tsUnBskYep8Y5lsuEExa5t0"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "590418472574-j083itvsqol6vg010bqglqah7i1u97gr.apps.googleusercontent.com",
+              "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:347811869733:android:3d57e2e14bdabf59ae3bcc",
+        "android_client_info": {
+          "package_name": "com.moutamid.airbnb"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "347811869733-vuk0guk5v5r8ujpcrp19jjkbvkul6r00.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.moutamid.airbnb",
+            "certificate_hash": "1e3a26a5f7cc069683db796efde1ab18eebe2a95"
+          }
+        },
+        {
+          "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-KByd3rZ8tsUnBskYep8Y5lsuEExa5t0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:347811869733:android:e47bb4d31e0e4fecae3bcc",
+        "android_client_info": {
+          "package_name": "com.moutamid.calenderapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-KByd3rZ8tsUnBskYep8Y5lsuEExa5t0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:347811869733:android:c0be5e1c57589a25ae3bcc",
+        "android_client_info": {
+          "package_name": "com.moutamid.chama"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-KByd3rZ8tsUnBskYep8Y5lsuEExa5t0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:347811869733:android:e0c66ddac79d5c35ae3bcc",
+        "android_client_info": {
+          "package_name": "com.moutamid.cogear"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-KByd3rZ8tsUnBskYep8Y5lsuEExa5t0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:347811869733:android:7f693d7657918166ae3bcc",
+        "android_client_info": {
+          "package_name": "com.moutamid.educationappadmin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-KByd3rZ8tsUnBskYep8Y5lsuEExa5t0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:347811869733:android:4de8bd232c730233ae3bcc",
+        "android_client_info": {
+          "package_name": "com.moutamid.educationappuser"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "347811869733-e7d4oijbc5sg403c5f5larl1ushtf3k7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.moutamid.educationappuser",
+            "certificate_hash": "1e3a26a5f7cc069683db796efde1ab18eebe2a95"
+          }
+        },
+        {
+          "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-KByd3rZ8tsUnBskYep8Y5lsuEExa5t0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:347811869733:android:25ea8ff9f9b77df2ae3bcc",
+        "android_client_info": {
+          "package_name": "com.moutamid.elearningapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-KByd3rZ8tsUnBskYep8Y5lsuEExa5t0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:347811869733:android:257966af024d4417ae3bcc",
+        "android_client_info": {
+          "package_name": "com.moutamid.gardeningapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-KByd3rZ8tsUnBskYep8Y5lsuEExa5t0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:347811869733:android:12ca97a2456d3d8cae3bcc",
+        "android_client_info": {
+          "package_name": "com.moutamid.halalfoodadmin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-KByd3rZ8tsUnBskYep8Y5lsuEExa5t0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:347811869733:android:bdbc4ce8e9d78d61ae3bcc",
+        "android_client_info": {
+          "package_name": "com.moutamid.halalfoodfinder"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-KByd3rZ8tsUnBskYep8Y5lsuEExa5t0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:347811869733:android:b1331998cb2563a2ae3bcc",
+        "android_client_info": {
+          "package_name": "com.moutamid.hbdresidents"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-KByd3rZ8tsUnBskYep8Y5lsuEExa5t0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:347811869733:android:3a58ad7591e8a099ae3bcc",
+        "android_client_info": {
+          "package_name": "com.moutamid.hbdresidentsadmin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-KByd3rZ8tsUnBskYep8Y5lsuEExa5t0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:347811869733:android:7e4cc1eed28a0ca7ae3bcc",
+        "android_client_info": {
+          "package_name": "com.moutamid.herbalguide"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-KByd3rZ8tsUnBskYep8Y5lsuEExa5t0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:347811869733:android:26055353bbcf286eae3bcc",
+        "android_client_info": {
+          "package_name": "com.moutamid.justbee"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-KByd3rZ8tsUnBskYep8Y5lsuEExa5t0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:347811869733:android:0077fe6a91a728c1ae3bcc",
+        "android_client_info": {
+          "package_name": "com.moutamid.letswander"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-KByd3rZ8tsUnBskYep8Y5lsuEExa5t0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:347811869733:android:33a3a39d4df2bb38ae3bcc",
+        "android_client_info": {
+          "package_name": "com.moutamid.letswanderadmin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-KByd3rZ8tsUnBskYep8Y5lsuEExa5t0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:347811869733:android:400114b71683139eae3bcc",
+        "android_client_info": {
+          "package_name": "com.moutamid.livestreamingapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-KByd3rZ8tsUnBskYep8Y5lsuEExa5t0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:347811869733:android:f59a2c15bb292200ae3bcc",
+        "android_client_info": {
+          "package_name": "com.moutamid.meusom"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-KByd3rZ8tsUnBskYep8Y5lsuEExa5t0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:347811869733:android:492176bae1a923c3ae3bcc",
+        "android_client_info": {
+          "package_name": "com.moutamid.simpleolx"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-KByd3rZ8tsUnBskYep8Y5lsuEExa5t0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
