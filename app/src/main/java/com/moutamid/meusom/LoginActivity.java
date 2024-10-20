@@ -26,12 +26,13 @@ public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
     private Context context = LoginActivity.this;
     private Utils utils = new Utils();
-    private boolean layout_register = true;
+    private boolean layout_register = false;
     private Button loginButton;
     private EditText emailEditText, passwordEditText;
     private ProgressDialog progressDialog;
     private String emailStr;
     private String passwordStr;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,8 +51,8 @@ public class LoginActivity extends AppCompatActivity {
         progressDialog.setCancelable(false);
         progressDialog.setMessage("Signing you in...");
 
-//        emailEditText.setText("moutamid@gmail.com");
-//        passwordEditText.setText("123456");
+        emailEditText.setText("moutamid@gmail.com");
+        passwordEditText.setText("123456");
 
         setHintClickListener();
 
@@ -185,6 +186,10 @@ public class LoginActivity extends AppCompatActivity {
     private void setHintClickListener() {
         TextView hintText = findViewById(R.id.login_hint);
         TextView headerText = findViewById(R.id.headerTextPrimary);
+
+        hintText.setText(getString(R.string.login_signup_hint));
+        headerText.setText("Login");
+        loginButton.setText("LOGIN");
 
         hintText.setOnClickListener(new View.OnClickListener() {
             @Override
