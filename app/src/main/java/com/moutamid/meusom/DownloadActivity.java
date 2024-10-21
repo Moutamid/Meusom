@@ -1,10 +1,14 @@
 package com.moutamid.meusom;
 
+import static android.content.ContentValues.TAG;
+
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -21,9 +25,14 @@ import com.moutamid.meusom.utilis.Utils;
 import com.moutamid.meusom.utilis.VolleySingleton;
 
 import org.json.JSONException;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class DownloadActivity extends AppCompatActivity {
     private static final String TAG = "DownloadActivity";
@@ -105,6 +114,9 @@ public class DownloadActivity extends AppCompatActivity {
         Log.d(TAG, "getSong: link " + link);
         Log.d(TAG, "getSong: URL " + url);
 
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        Handler mainThreadHandler = new Handler(Looper.getMainLooper());
+
         RequestQueue requestQueue = VolleySingleton.getInstance(this).getRequestQueue();
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, null,
@@ -115,38 +127,49 @@ public class DownloadActivity extends AppCompatActivity {
                         String title = response.getString("title");
                         String downloadUrl = response.getString("downloadUrl");
 
-                        String d = title;
-                        for (String s : Constants.special) {
-                            if (d.contains(s)) {
-                                d = d.replace(s, "");
-                            }
-                        }
+                        if (title.equals("null")) {
+                            executorService.execute(() -> {
+                                try {
+                                    Document doc2 = Jsoup.connect(link).get();
+                                    String title2 = doc2.title();
+                                    title2 = title2.replace(" - YouTube", "").trim();
+                                    if (title2.isEmpty()) {
+                                        title2 = "NULL";
+                                    } else {
+                                        for (String s : Constants.special) {
+                                            if (title2.contains(s)) {
+                                                title2 = title2.replace(s, "");
+                                            }
+                                        }
+                                    }
 
-                        d = d.trim();
-
-//                        String coverUrl = vMeta.getHqImageUrl();
-//                        coverUrl = coverUrl.replace("http", "https");
-
-                        boolean check = utils.fileExists(d) || utils.videoExists(d);
-                        progressDialog.dismiss();
-                        if (check) {
-                            Toast.makeText(context, "Already Downloaded", Toast.LENGTH_SHORT).show();
+                                    String finalTitle = title2;
+                                    mainThreadHandler.post(() -> {
+                                        Log.d(TAG, "getSong: title2  " + finalTitle);
+                                        moveIntent(finalTitle, downloadUrl, videoLink);
+                                    });
+                                } catch (IOException e) {
+                                    mainThreadHandler.post(() -> {
+                                        progressDialog.dismiss();
+                                        Toast.makeText(DownloadActivity.this, "Failed to fetch the video title.", Toast.LENGTH_SHORT).show();
+                                    });
+                                }
+                            });
                         } else {
-                            Intent intent = new Intent(DownloadActivity.this, CommandExampleActivity.class);
-                            intent.putExtra(Constants.URL, downloadUrl);
-                            intent.putExtra(Constants.SONG_NAME, d);
-                            intent.putExtra(Constants.ID, Constants.getVideoId(videoLink));
-                            intent.putExtra(Constants.videoLink, downloadUrl);
-                            intent.putExtra(Constants.SONG_ALBUM_NAME, title);
-                            intent.putExtra(Constants.SONG_COVER_URL, "");
-                            intent.putExtra(Constants.FROM_INTENT, true);
-                            startActivity(intent);
+                            for (String s : Constants.special) {
+                                if (title.contains(s)) {
+                                    title = title.replace(s, "");
+                                }
+                            }
+                            moveIntent(title, downloadUrl, videoLink);
                         }
                     } catch (JSONException e) {
+                        progressDialog.dismiss();
                         e.printStackTrace();
                     }
                 },
                 error -> {
+            progressDialog.dismiss();
                     String errorMessage = "Unknown error";
                     if (error.networkResponse != null) {
                         int statusCode = error.networkResponse.statusCode;
@@ -169,99 +192,25 @@ public class DownloadActivity extends AppCompatActivity {
         };
 
         requestQueue.add(jsonObjectRequest);
+    }
 
-
-//        YTExtractor ytExtractor = new YTExtractor(this, true, true, 3);
-//        ytExtractor.extract(Constants.getVideoId(videoLink), new Continuation<Unit>() {
-//            @NonNull
-//            @Override
-//            public CoroutineContext getContext() {
-//                return EmptyCoroutineContext.INSTANCE;
-//            }
-//
-//            @Override
-//            public void resumeWith(@NonNull Object o) {
-//                Log.d(TAG, "resumeWith: SUCCESS");
-//                SparseArray<com.maxrave.kotlinyoutubeextractor.YtFile> ytFiles = ytExtractor.getYTFiles();
-//                if (ytFiles != null) {
-//                    for (int atag : Constants.audio_iTag) {
-//                        if (ytFiles.get(atag) != null) {
-//                            YtFile ytFile = ytFiles.valueAt(atag);
-//                            String downloadUrl = ytFile.getUrl();
-//                            Log.d(TAG, "getSong: DOWNLOAD : " + downloadUrl);
-//                        }
-//                    }
-//                } else {
-//                    Log.d(TAG, "Failed to extract video information.");
-//                }
-//            }
-//        });
-
-/*
-        Log.d(TAG, "link: " + link);
-        new YouTubeExtractor(this) {
-            @Override
-            protected void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta vMeta) {
-                Log.d(TAG, "onExtractionComplete");
-                if (ytFiles != null) {
-                    String downloadUrl = "";
-                    String audioURL = "";
-                    try {
-                        for (int vtag : Constants.video_iTag) {
-                            if (ytFiles.get(vtag) != null) {
-                                downloadUrl = ytFiles.get(vtag).getUrl();
-                                Log.d("VideoSError", "vTag " + vtag);
-                                break;
-                            }
-                        }
-                        for (int atag : Constants.audio_iTag) {
-                            if (ytFiles.get(atag) != null) {
-                                audioURL = ytFiles.get(atag).getUrl();
-                                Log.d("VideoSError", "aTag " + atag);
-                                break;
-                            }
-                        }
-
-                        String d = vMeta.getTitle();
-                        for (String s : Constants.special) {
-                            if (d.contains(s)) {
-                                d = d.replace(s, "");
-                            }
-                        }
-
-                        d = d.trim();
-
-                        String coverUrl = vMeta.getHqImageUrl();
-                        coverUrl = coverUrl.replace("http", "https");
-
-                        boolean check = utils.fileExists(d) || utils.videoExists(d);
-
-                        if (check) {
-                            Toast.makeText(context, "Already Downloaded", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Intent intent = new Intent(DownloadActivity.this, CommandExampleActivity.class);
-                            intent.putExtra(Constants.URL, audioURL);
-                            intent.putExtra(Constants.SONG_NAME, d);
-                            intent.putExtra(Constants.ID, Constants.getVideoId(videoLink));
-                            intent.putExtra(Constants.videoLink, downloadUrl);
-                            intent.putExtra(Constants.SONG_ALBUM_NAME, vMeta.getAuthor());
-                            intent.putExtra(Constants.SONG_COVER_URL, coverUrl);
-                            intent.putExtra(Constants.FROM_INTENT, true);
-                            startActivity(intent);
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        Toast.makeText(context, "Video link is not valid", Toast.LENGTH_SHORT).show();
-                    }
-                    progressDialog.dismiss();
-                } else {
-                    progressDialog.dismiss();
-                    Log.d(TAG, "onExtractionComplete: ytFiles == NULL" );
-                    Toast.makeText(context, "No Video Found", Toast.LENGTH_SHORT).show();
-                }
-            }
-        }.extract(link, true, true);
-     */
+    private void moveIntent(String title, String downloadUrl, String videoLink) {
+        title = title.trim();
+        boolean check = utils.fileExists(title) || utils.videoExists(title);
+        progressDialog.dismiss();
+        if (check) {
+            Toast.makeText(context, "Already Downloaded", Toast.LENGTH_SHORT).show();
+        } else {
+            Intent intent = new Intent(DownloadActivity.this, CommandExampleActivity.class);
+            intent.putExtra(Constants.URL, downloadUrl);
+            intent.putExtra(Constants.SONG_NAME, title);
+            intent.putExtra(Constants.ID, Constants.getVideoId(videoLink));
+            intent.putExtra(Constants.videoLink, downloadUrl);
+            intent.putExtra(Constants.SONG_ALBUM_NAME, title);
+            intent.putExtra(Constants.SONG_COVER_URL, "");
+            intent.putExtra(Constants.FROM_INTENT, true);
+            startActivity(intent);
+        }
     }
 
     @Override

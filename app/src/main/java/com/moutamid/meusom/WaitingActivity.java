@@ -1,10 +1,14 @@
 package com.moutamid.meusom;
 
+import static android.content.ContentValues.TAG;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.util.SparseArray;
 import android.widget.TextView;
@@ -22,10 +26,15 @@ import com.moutamid.meusom.utilis.Constants;
 import com.moutamid.meusom.utilis.VolleySingleton;
 
 import org.json.JSONException;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import at.huber.youtubeExtractor.VideoMeta;
 import at.huber.youtubeExtractor.YouTubeExtractor;
@@ -35,6 +44,9 @@ public class WaitingActivity extends AppCompatActivity {
     private ArrayList<SongModel> songModelArrayList = new ArrayList<>();
     private ArrayList<Model> list = new ArrayList<>();
     RequestQueue requestQueue;
+    ExecutorService executorService;
+    Handler mainThreadHandler;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +55,8 @@ public class WaitingActivity extends AppCompatActivity {
         Stash.clear(Constants.OFF_DATA);
 
         requestQueue = VolleySingleton.getInstance(this).getRequestQueue();
+        executorService = Executors.newSingleThreadExecutor();
+        mainThreadHandler = new Handler(Looper.getMainLooper());
 
         Constants.databaseReference().child(Constants.SONGS)
                 .child(Constants.auth().getCurrentUser().getUid())
@@ -93,31 +107,42 @@ public class WaitingActivity extends AppCompatActivity {
                     try {
                         String title = response.getString("title");
                         String downloadUrl = response.getString("downloadUrl");
+                        if (title.equals("null")) {
+                            executorService.execute(() -> {
+                                try {
+                                    Document doc2 = Jsoup.connect(link).get();
+                                    String title2 = doc2.title();
+                                    title2 = title2.replace(" - YouTube", "").trim();
+                                    if (title2.isEmpty()) {
+                                        title2 = "NULL";
+                                    } else {
+                                        for (String s : Constants.special) {
+                                            if (title2.contains(s)) {
+                                                title2 = title2.replace(s, "");
+                                            }
+                                        }
+                                    }
 
-                        SongModel model = new SongModel();
-                        model.setId(list.get(i).id);
-                        model.setSongYTUrl(downloadUrl);
-                        model.setSongName(title);
-                        model.setType("audio");
-                        model.setSongAlbumName(title);
-                        model.setSongCoverUrl("");
-                        model.setSongVideoURL(downloadUrl);
-                        model.setSongPushKey(list.get(i).key);
-
-                        songModelArrayList.add(model);
-
-                        Stash.put(Constants.OFF_DATA, songModelArrayList);
-
-                        if (i == list.size() - 1) {
-                            Log.d("LOGINOFF", "iNTENT");
-                            Intent intent = new Intent(WaitingActivity.this, MainActivity.class);
-                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            startActivity(intent);
-                            finish();
+                                    String finalTitle = title2;
+                                    mainThreadHandler.post(() -> {
+                                        Log.d(TAG, "getSong: title2  " + finalTitle);
+                                        moveIntent(i, finalTitle, downloadUrl);
+                                    });
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                    mainThreadHandler.post(() -> {
+                                        Toast.makeText(WaitingActivity.this, "Failed to fetch the video title.", Toast.LENGTH_SHORT).show();
+                                    });
+                                }
+                            });
                         } else {
-                            getData(i + 1);
+                            for (String s : Constants.special) {
+                                if (title.contains(s)) {
+                                    title = title.replace(s, "");
+                                }
+                            }
+                            moveIntent(i, title, downloadUrl);
                         }
-
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -145,6 +170,33 @@ public class WaitingActivity extends AppCompatActivity {
         };
 
         requestQueue.add(jsonObjectRequest);
+    }
+
+    private void moveIntent(int i, String title, String downloadUrl) {
+        title = title.trim();
+        SongModel model = new SongModel();
+        model.setId(list.get(i).id);
+        model.setSongYTUrl(downloadUrl);
+        model.setSongName(title);
+        model.setType("audio");
+        model.setSongAlbumName(title);
+        model.setSongCoverUrl("");
+        model.setSongVideoURL(downloadUrl);
+        model.setSongPushKey(list.get(i).key);
+
+        songModelArrayList.add(model);
+
+        Stash.put(Constants.OFF_DATA, songModelArrayList);
+
+        if (i == list.size() - 1) {
+            Log.d("LOGINOFF", "iNTENT");
+            Intent intent = new Intent(WaitingActivity.this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        } else {
+            getData(i + 1);
+        }
     }
 
     class Model {
