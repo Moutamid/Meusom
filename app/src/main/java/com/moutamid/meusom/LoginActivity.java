@@ -52,7 +52,7 @@ public class LoginActivity extends AppCompatActivity {
         progressDialog.setMessage("Signing you in...");
 
         emailEditText.setText("moutamid@gmail.com");
-        passwordEditText.setText("123456");
+        passwordEditText.setText("123456789");
 
         setHintClickListener();
 

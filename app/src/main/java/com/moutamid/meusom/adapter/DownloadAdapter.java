@@ -63,7 +63,7 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
 //            holder.songAlbumName.setText(model.getSongAlbumName());
         holder.songAlbumName.setVisibility(View.GONE);
         //Toast.makeText(context, "img " + model.getSongCoverUrl(), Toast.LENGTH_SHORT).show();
-        Glide.with(context).load(model.getSongCoverUrl()).placeholder(R.color.red).into(holder.songCoverImage);
+        Glide.with(context).load(model.getSongCoverUrl()).placeholder(R.drawable.music).into(holder.songCoverImage);
 
         holder.cancel.setOnClickListener(v -> {
             PRDownloader.cancel(holder.item);
@@ -135,6 +135,7 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
                                 holder.cancel.setVisibility(View.GONE);
                                 if (model.getType().equals("video")) {
                                     holder.audiovideo.setText("Download Video");
+                                    holder.audiovideo.setEnabled(false);
                                 } else {
                                     holder.audiovideo.setText("Download Audio");
                                 }
@@ -493,11 +494,13 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
 
         Button audio = fileDialog.findViewById(R.id.file);
         Button video = fileDialog.findViewById(R.id.fileData);
+
+        video.setEnabled(false);
         TextView text = fileDialog.findViewById(R.id.text);
 
         text.setText("Which file you want to download");
         audio.setText("Audio");
-        video.setText("Video");
+        video.setText("Video (Not Available)");
 
         audio.setOnClickListener(v -> {
             model.setType("audio");

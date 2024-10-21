@@ -45,7 +45,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="12sp"
                 android:backgroundTint="@color/red"
-                android:text="Video" />
+                android:enabled="false"
+                android:text="Video (Not available)" />
 
             <Button
                 android:id="@+id/audio"

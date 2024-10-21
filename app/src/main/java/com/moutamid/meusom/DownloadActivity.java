@@ -1,8 +1,5 @@
 package com.moutamid.meusom;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -10,27 +7,23 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.maxrave.kotlinyoutubeextractor.State;
-import com.maxrave.kotlinyoutubeextractor.YTExtractor;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.moutamid.meusom.utilis.Constants;
 import com.moutamid.meusom.utilis.Utils;
+import com.moutamid.meusom.utilis.VolleySingleton;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import org.json.JSONException;
 
-import at.huber.youtubeExtractor.VideoMeta;
-import at.huber.youtubeExtractor.YouTubeExtractor;
-import at.huber.youtubeExtractor.YtFile;
-import kotlin.Unit;
-import kotlin.coroutines.Continuation;
-import kotlin.coroutines.CoroutineContext;
-import kotlin.coroutines.EmptyCoroutineContext;
-import kotlinx.coroutines.AbstractCoroutine;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DownloadActivity extends AppCompatActivity {
     private static final String TAG = "DownloadActivity";
@@ -105,6 +98,79 @@ public class DownloadActivity extends AppCompatActivity {
     private void getSong(String videoLink) {
         Log.d(TAG, "getSong: " + videoLink);
 
+        String link = "https://www.youtube.com/watch?v=" + Constants.getVideoId(videoLink);
+
+        String url = "https://youtube-to-mp315.p.rapidapi.com/download?url=" + link + "&format=mp3";
+
+        Log.d(TAG, "getSong: link " + link);
+        Log.d(TAG, "getSong: URL " + url);
+
+        RequestQueue requestQueue = VolleySingleton.getInstance(this).getRequestQueue();
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, null,
+                response -> {
+                    // Response
+                    Log.d(TAG, "getSong: " + response);
+                    try {
+                        String title = response.getString("title");
+                        String downloadUrl = response.getString("downloadUrl");
+
+                        String d = title;
+                        for (String s : Constants.special) {
+                            if (d.contains(s)) {
+                                d = d.replace(s, "");
+                            }
+                        }
+
+                        d = d.trim();
+
+//                        String coverUrl = vMeta.getHqImageUrl();
+//                        coverUrl = coverUrl.replace("http", "https");
+
+                        boolean check = utils.fileExists(d) || utils.videoExists(d);
+                        progressDialog.dismiss();
+                        if (check) {
+                            Toast.makeText(context, "Already Downloaded", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Intent intent = new Intent(DownloadActivity.this, CommandExampleActivity.class);
+                            intent.putExtra(Constants.URL, downloadUrl);
+                            intent.putExtra(Constants.SONG_NAME, d);
+                            intent.putExtra(Constants.ID, Constants.getVideoId(videoLink));
+                            intent.putExtra(Constants.videoLink, downloadUrl);
+                            intent.putExtra(Constants.SONG_ALBUM_NAME, title);
+                            intent.putExtra(Constants.SONG_COVER_URL, "");
+                            intent.putExtra(Constants.FROM_INTENT, true);
+                            startActivity(intent);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                },
+                error -> {
+                    String errorMessage = "Unknown error";
+                    if (error.networkResponse != null) {
+                        int statusCode = error.networkResponse.statusCode;
+                        String responseData = new String(error.networkResponse.data);
+                        errorMessage = "Status Code: " + statusCode + ", Response: " + responseData;
+                    } else if (error.getLocalizedMessage() != null) {
+                        errorMessage = error.getLocalizedMessage();
+                    }
+                    Log.e(TAG, "Request failed. URL: " + url + ", Error: " + errorMessage);
+                }
+        ) {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("x-rapidapi-key", "d7385e342bmshb432933b0fb0e71p101f9ejsne8db1ce60a84");
+                headers.put("x-rapidapi-host", "youtube-to-mp315.p.rapidapi.com");
+                headers.put("Content-Type", "application/json");
+                return headers;
+            }
+        };
+
+        requestQueue.add(jsonObjectRequest);
+
+
 //        YTExtractor ytExtractor = new YTExtractor(this, true, true, 3);
 //        ytExtractor.extract(Constants.getVideoId(videoLink), new Continuation<Unit>() {
 //            @NonNull
@@ -131,7 +197,7 @@ public class DownloadActivity extends AppCompatActivity {
 //            }
 //        });
 
-        String link = "https://www.youtube.com/watch?v=" + Constants.getVideoId(videoLink);
+/*
         Log.d(TAG, "link: " + link);
         new YouTubeExtractor(this) {
             @Override
@@ -195,6 +261,7 @@ public class DownloadActivity extends AppCompatActivity {
                 }
             }
         }.extract(link, true, true);
+     */
     }
 
     @Override

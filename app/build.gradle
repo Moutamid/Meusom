@@ -38,6 +38,8 @@ android {
 dependencies {
     implementation 'com.github.akshay2211:Stash:1c45b0e5d5'
 
+    implementation 'com.android.volley:volley:1.2.1'
+
     implementation 'androidx.media:media:1.6.0'
     implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
     implementation 'androidx.core:core:1.9.0'
