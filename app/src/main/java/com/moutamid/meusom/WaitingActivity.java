@@ -10,12 +10,18 @@ import android.util.SparseArray;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.fxn.stash.Stash;
 import com.google.firebase.database.DataSnapshot;
 import com.moutamid.meusom.adapter.DownloadAdapter;
 import com.moutamid.meusom.models.SongIDModel;
 import com.moutamid.meusom.models.SongModel;
 import com.moutamid.meusom.utilis.Constants;
+import com.moutamid.meusom.utilis.VolleySingleton;
+
+import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,13 +34,15 @@ import at.huber.youtubeExtractor.YtFile;
 public class WaitingActivity extends AppCompatActivity {
     private ArrayList<SongModel> songModelArrayList = new ArrayList<>();
     private ArrayList<Model> list = new ArrayList<>();
-
+    RequestQueue requestQueue;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_waiting);
 
         Stash.clear(Constants.OFF_DATA);
+
+        requestQueue = VolleySingleton.getInstance(this).getRequestQueue();
 
         Constants.databaseReference().child(Constants.SONGS)
                 .child(Constants.auth().getCurrentUser().getUid())
@@ -51,7 +59,7 @@ public class WaitingActivity extends AppCompatActivity {
                                 list.add(model);
                             }
                         }
-                        getData();
+                        getData(0);
                     } else {
                         Intent intent = new Intent(WaitingActivity.this, MainActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -69,78 +77,74 @@ public class WaitingActivity extends AppCompatActivity {
 
     }
 
+    private static final String TAG = "WaitingActivity";
     @SuppressLint("StaticFieldLeak")
-    private void getData() {
-        for (int i = 0; i < list.size(); i++) {
-            String link = "https://www.youtube.com/watch?v=" + list.get(i).id;
-            int finalI = i;
-            Log.d("LOGINOFF", "loop : " + i);
-            Log.d("LOGINOFF", "finalI 1  : " + finalI);
-            new YouTubeExtractor(this) {
-                @Override
-                public void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta vMeta) {
-                    if (ytFiles != null) {
-                        String downloadUrl = "";
-                        String audioURL = "";
-                        try {
-                            for (int vtag : Constants.video_iTag) {
-                                if (ytFiles.get(vtag) != null) {
-                                    downloadUrl = ytFiles.get(vtag).getUrl();
-                                    break;
-                                }
-                            }
-                            for (int atag : Constants.audio_iTag) {
-                                if (ytFiles.get(atag) != null) {
-                                    audioURL = ytFiles.get(atag).getUrl();
-                                    break;
-                                }
-                            }
+    private void getData(int i) {
+        String link = "https://www.youtube.com/watch?v=" + list.get(i).id;
+        String url = "https://youtube-to-mp315.p.rapidapi.com/download?url=" + link + "&format=mp3";
 
-                            String d = vMeta.getTitle();
-                            for (String s : Constants.special) {
-                                if (d.contains(s)) {
-                                    d = d.replace(s, "");
-                                }
-                            }
+        Log.d(TAG, "getSong: link " + link);
+        Log.d(TAG, "getSong: URL " + url);
 
-                            Log.d("LOGINOFF", "finalI 2  : " + finalI);
-                            SongModel model = new SongModel();
-                            model.setId(list.get(finalI).id);
-                            model.setSongYTUrl(audioURL);
-                            model.setSongName(d);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, null,
+                response -> {
+                    // Response
+                    Log.d(TAG, "getSong: " + response);
+                    try {
+                        String title = response.getString("title");
+                        String downloadUrl = response.getString("downloadUrl");
 
-                            model.setType("");
+                        SongModel model = new SongModel();
+                        model.setId(list.get(i).id);
+                        model.setSongYTUrl(downloadUrl);
+                        model.setSongName(title);
+                        model.setType("audio");
+                        model.setSongAlbumName(title);
+                        model.setSongCoverUrl("");
+                        model.setSongVideoURL(downloadUrl);
+                        model.setSongPushKey(list.get(i).key);
 
-                            model.setSongAlbumName(vMeta.getAuthor());
+                        songModelArrayList.add(model);
 
-                            String coverUrl = vMeta.getHqImageUrl();
-                            coverUrl = coverUrl.replace("http", "https");
-                            model.setSongCoverUrl(coverUrl);
+                        Stash.put(Constants.OFF_DATA, songModelArrayList);
 
-                            model.setSongVideoURL(downloadUrl);
-                            model.setSongPushKey(list.get(finalI).key);
-
-                            songModelArrayList.add(model);
-
-                            Stash.put(Constants.OFF_DATA, songModelArrayList);
-
-                            if (finalI == list.size() - 1) {
-                                Log.d("LOGINOFF", "iNTENT");
-                                Intent intent = new Intent(WaitingActivity.this, MainActivity.class);
-                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                startActivity(intent);
-                                finish();
-                            }
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            //Toast.makeText(WaitingActivity.this, "Video link is not valid", Toast.LENGTH_SHORT).show();
+                        if (i == list.size() - 1) {
+                            Log.d("LOGINOFF", "iNTENT");
+                            Intent intent = new Intent(WaitingActivity.this, MainActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            getData(i + 1);
                         }
-                    }
-                }
-            }.extract(link, false, false);
 
-        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                },
+                error -> {
+                    String errorMessage = "Unknown error";
+                    if (error.networkResponse != null) {
+                        int statusCode = error.networkResponse.statusCode;
+                        String responseData = new String(error.networkResponse.data);
+                        errorMessage = "Status Code: " + statusCode + ", Response: " + responseData;
+                    } else if (error.getLocalizedMessage() != null) {
+                        errorMessage = error.getLocalizedMessage();
+                    }
+                    Log.e(TAG, "Request failed. URL: " + url + ", Error: " + errorMessage);
+                }
+        ) {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("x-rapidapi-key", "d7385e342bmshb432933b0fb0e71p101f9ejsne8db1ce60a84");
+                headers.put("x-rapidapi-host", "youtube-to-mp315.p.rapidapi.com");
+                headers.put("Content-Type", "application/json");
+                return headers;
+            }
+        };
+
+        requestQueue.add(jsonObjectRequest);
     }
 
     class Model {
