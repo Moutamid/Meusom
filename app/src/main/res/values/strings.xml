@@ -59,4 +59,5 @@
     <string name="terms_and_conditions_url" translatable="false">http://www.google.com</string>
     <string name="sign_out">SIGN OUT</string>
     <string name="by_continuing_you_agree_to_our_terms_and_conditions">By continuing, you agree to our terms and conditions</string>
+    <string name="api" translatable="false">Go to this link <u>https://rapidapi.com/marcocollatina/api/youtube-to-mp315/pricing</u> and buy api or use free version</string>
 </resources>

@@ -30,6 +30,7 @@ public class Constants {
     public static final String ACTION_PREVIUOS = "actionprevious";
     public static final String ACTION_PLAY = "actionplay";
     public static final String ACTION_NEXT = "actionnext";
+    public static final String API_KEY = "API_KEY";
 
     @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     public static final String[] permissions13 = {

@@ -3,23 +3,33 @@ package com.moutamid.meusom;
 import static android.content.ContentValues.TAG;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.fxn.stash.Stash;
 import com.moutamid.meusom.utilis.Constants;
 import com.moutamid.meusom.utilis.Utils;
 import com.moutamid.meusom.utilis.VolleySingleton;
@@ -76,6 +86,13 @@ public class DownloadActivity extends AppCompatActivity {
             }
         });
 
+        findViewById(R.id.api).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showAPiDIALOG();
+            }
+        });
+
         findViewById(R.id.gotoCommandActivityBtn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -84,6 +101,37 @@ public class DownloadActivity extends AppCompatActivity {
             }
         });
         findViewById(R.id.ajgh).setOnClickListener(view -> executeDownloadTask());
+    }
+
+    private void showAPiDIALOG() {
+        Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.api_key);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        dialog.setCancelable(true);
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.show();
+
+        Button close = dialog.findViewById(R.id.close);
+        Button save = dialog.findViewById(R.id.save);
+        TextView link = dialog.findViewById(R.id.link);
+        EditText key = dialog.findViewById(R.id.key);
+
+        key.setText(Stash.getString(Constants.API_KEY, "d7385e342bmshb432933b0fb0e71p101f9ejsne8db1ce60a84"));
+
+        close.setOnClickListener(v -> dialog.dismiss());
+        link.setOnClickListener(v -> {
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://rapidapi.com/marcocollatina/api/youtube-to-mp315/pricing")));
+        });
+        save.setOnClickListener(v -> {
+            if (key.getText().toString().isEmpty()){
+                Toast.makeText(context, "Key is empty", Toast.LENGTH_SHORT).show();
+            } else {
+                dialog.dismiss();
+                Stash.put(Constants.API_KEY, key.getText().toString().trim());
+            }
+        });
+
     }
 
     private void executeDownloadTask() {
@@ -179,12 +227,13 @@ public class DownloadActivity extends AppCompatActivity {
                         errorMessage = error.getLocalizedMessage();
                     }
                     Log.e(TAG, "Request failed. URL: " + url + ", Error: " + errorMessage);
+                    Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show();
                 }
         ) {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
-                headers.put("x-rapidapi-key", "d7385e342bmshb432933b0fb0e71p101f9ejsne8db1ce60a84");
+                headers.put("x-rapidapi-key", Stash.getString(Constants.API_KEY, "d7385e342bmshb432933b0fb0e71p101f9ejsne8db1ce60a84"));
                 headers.put("x-rapidapi-host", "youtube-to-mp315.p.rapidapi.com");
                 headers.put("Content-Type", "application/json");
                 return headers;
